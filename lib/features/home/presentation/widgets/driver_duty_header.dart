@@ -1,3 +1,4 @@
+import '../../../notifications/screens/driver_notifications_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../profile/data/driver_profile_model.dart';
@@ -145,13 +146,18 @@ class DriverDutyHeader extends StatelessWidget {
 
                 // Notifications Icon Button
                 Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.darkCardSecondary,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 22),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const DriverNotificationsScreen()),
+                      );
+                    },
                   ),
                 ),
               ],

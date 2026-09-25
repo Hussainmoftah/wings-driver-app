@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/screens/driver_login_screen.dart';
 import '../cubit/driver_home_cubit.dart';
 import '../cubit/driver_home_state.dart';
+import '../../../notifications/screens/driver_notifications_screen.dart';
 import '../widgets/active_delivery_card.dart';
 import '../widgets/driver_live_map_widget.dart';
 import '../widgets/offline_duty_banner.dart';
@@ -514,6 +515,59 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               ],
             ),
           ),
+
+          // Notifications Bell Button
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DriverNotificationsScreen()),
+              ).then((_) {
+                if (context.mounted) {
+                  context.read<DriverHomeCubit>().refreshHome();
+                }
+              });
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B), size: 20),
+                ),
+                if (state.unreadNotificationsCount > 0)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEF4444),
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      child: Text(
+                        '${state.unreadNotificationsCount}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Cairo',
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
 
           // Toggle Duty Switch
           Switch.adaptive(

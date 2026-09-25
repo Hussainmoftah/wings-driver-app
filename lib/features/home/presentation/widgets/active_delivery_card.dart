@@ -84,17 +84,42 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.order.orderNumber,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              widget.order.orderNumber,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Cairo',
+                              ),
+                            ),
+                            if (widget.order.isMultiRestaurant) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryLight,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Text(
+                                  'مشترك 🛵',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Cairo',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         Text(
-                          isOnTheWay ? 'في الطريق لتسليم الزبون' : 'جاهز للاستلام من المطعم',
+                          isOnTheWay
+                              ? 'في الطريق لتسليم الزبون'
+                              : (widget.order.isMultiRestaurant ? 'استلام متتابع من المطاعم' : 'جاهز للاستلام من المطعم'),
                           style: TextStyle(
                             color: isOnTheWay ? AppColors.onlineGreen : AppColors.primary,
                             fontSize: 11,
@@ -141,29 +166,61 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 2. Timeline Step 1: Restaurant Pickup Point
-                _buildLocationTile(
-                  title: 'نقطة الاستلام (المطعم)',
-                  name: widget.order.restaurantName ?? 'مطعم الأجنحة',
-                  address: widget.order.restaurantAddress ?? 'طريق الشط - طرابلس',
-                  phone: widget.order.restaurantPhone,
-                  icon: Icons.storefront_rounded,
-                  iconBg: AppColors.primaryLight,
-                  iconColor: AppColors.primary,
-                  isCompleted: isOnTheWay,
-                  isCurrent: isReadyForPickup,
-                  onTapMap: widget.onFocusRestaurantOnMap,
-                ),
-
-                // Connecting Dashed Line
-                Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Container(
-                    height: 20,
-                    width: 2,
-                    color: isOnTheWay ? AppColors.onlineGreen : AppColors.border,
+                if (widget.order.isMultiRestaurant && widget.order.stops.isNotEmpty) ...[
+                  // Multi-Stop Route
+                  ...widget.order.stops.map((stop) {
+                    final isStopCompleted = isOnTheWay;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildLocationTile(
+                          title: 'نقطة استلام (محطة ${stop.stopSequence})',
+                          name: stop.restaurantName ?? widget.order.restaurantName ?? 'المطعم',
+                          address: stop.restaurantAddress ?? widget.order.restaurantAddress ?? 'طرابلس',
+                          phone: stop.restaurantPhone ?? widget.order.restaurantPhone,
+                          icon: Icons.storefront_rounded,
+                          iconBg: AppColors.primaryLight,
+                          iconColor: AppColors.primary,
+                          isCompleted: isStopCompleted,
+                          isCurrent: isReadyForPickup,
+                          onTapMap: widget.onFocusRestaurantOnMap,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Container(
+                            height: 18,
+                            width: 2,
+                            color: isOnTheWay ? AppColors.onlineGreen : AppColors.border,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ] else ...[
+                  // 2. Timeline Step 1: Restaurant Pickup Point
+                  _buildLocationTile(
+                    title: 'نقطة الاستلام (المطعم)',
+                    name: widget.order.restaurantName ?? 'مطعم الأجنحة',
+                    address: widget.order.restaurantAddress ?? 'طريق الشط - طرابلس',
+                    phone: widget.order.restaurantPhone,
+                    icon: Icons.storefront_rounded,
+                    iconBg: AppColors.primaryLight,
+                    iconColor: AppColors.primary,
+                    isCompleted: isOnTheWay,
+                    isCurrent: isReadyForPickup,
+                    onTapMap: widget.onFocusRestaurantOnMap,
                   ),
-                ),
+
+                  // Connecting Dashed Line
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Container(
+                      height: 20,
+                      width: 2,
+                      color: isOnTheWay ? AppColors.onlineGreen : AppColors.border,
+                    ),
+                  ),
+                ],
 
                 // 3. Timeline Step 2: Customer Delivery Destination
                 _buildLocationTile(

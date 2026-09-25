@@ -15,6 +15,7 @@ class DriverHomeState extends Equatable {
   final double codCustody;
   final double depositAmount;
   final double remainingDepositCapacity;
+  final int unreadNotificationsCount;
   final String? errorMessage;
   final bool isUpdatingStatus;
 
@@ -29,6 +30,7 @@ class DriverHomeState extends Equatable {
     this.codCustody = 0.0,
     this.depositAmount = 0.0,
     this.remainingDepositCapacity = 0.0,
+    this.unreadNotificationsCount = 0,
     this.errorMessage,
     this.isUpdatingStatus = false,
   });
@@ -47,6 +49,7 @@ class DriverHomeState extends Equatable {
     double? codCustody,
     double? depositAmount,
     double? remainingDepositCapacity,
+    int? unreadNotificationsCount,
     String? errorMessage,
     bool? isUpdatingStatus,
   }) {
@@ -61,6 +64,7 @@ class DriverHomeState extends Equatable {
       codCustody: codCustody ?? this.codCustody,
       depositAmount: depositAmount ?? this.depositAmount,
       remainingDepositCapacity: remainingDepositCapacity ?? this.remainingDepositCapacity,
+      unreadNotificationsCount: unreadNotificationsCount ?? this.unreadNotificationsCount,
       errorMessage: errorMessage,
       isUpdatingStatus: isUpdatingStatus ?? this.isUpdatingStatus,
     );
@@ -78,6 +82,7 @@ class DriverHomeState extends Equatable {
         codCustody,
         depositAmount,
         remainingDepositCapacity,
+        unreadNotificationsCount,
         errorMessage,
         isUpdatingStatus,
       ];

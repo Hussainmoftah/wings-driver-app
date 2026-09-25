@@ -12,6 +12,7 @@ import '../../../orders/data/repositories/orders_repository_impl.dart';
 import '../../../orders/domain/repositories/orders_repository.dart';
 import '../../../profile/data/repositories/profile_repository_impl.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
+import '../../../notifications/services/driver_notification_service.dart';
 import 'driver_home_state.dart';
 
 class DriverHomeCubit extends Cubit<DriverHomeState> {
@@ -38,46 +39,66 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
     _startPolling();
   }
 
-  Future<void> _fetchData() async {
+  Future<void> refreshHome() async {
+    await _fetchData();
+  }
+
+  int _pollTicks = 0;
+
+  Future<void> _fetchData({bool fetchFullFinancials = true}) async {
     try {
-      final profile = await _profileRepository.getProfile();
+      final profileFuture = _profileRepository.getProfile();
+      final activeOrdersFuture = _ordersRepository.getActiveOrders().catchError((e) {
+        debugPrint('⚠️ [Driver Active Orders Fetch] Failed: $e');
+        return <DriverOrderModel>[];
+      });
+      final notifFuture = DriverNotificationService().getUnreadCount().catchError((_) => 0);
+      final finFuture = fetchFullFinancials
+          ? () async {
+              try {
+                return await ApiService.get('/driver/financials');
+              } catch (e) {
+                debugPrint('⚠️ [Driver Financials Fetch] Error: $e');
+                return null;
+              }
+            }()
+          : Future<dynamic>.value(null);
 
-      DriverOrderModel? activeOrder;
-      try {
-        final activeOrders = await _ordersRepository.getActiveOrders();
-        if (activeOrders.isNotEmpty) {
-          activeOrder = activeOrders.first;
-        }
-      } catch (e) {
-        debugPrint('⚠️ [Driver Active Orders Fetch] Failed to load active orders: $e');
-      }
+      final results = await Future.wait([
+        profileFuture,
+        activeOrdersFuture,
+        notifFuture,
+        finFuture,
+      ]);
 
-      double earnings = 0.0;
-      int completedTrips = 0;
-      double cod = 0.0;
-      double deposit = 0.0;
-      double capacity = 0.0;
+      final profile = results[0] as dynamic;
+      final activeOrders = results[1] as List<DriverOrderModel>;
+      final unreadNotifications = results[2] as int;
+      final finResp = results[3] as dynamic;
 
-      try {
-        final finResp = await ApiService.get('/driver/financials');
-        if (finResp.statusCode == 200 && finResp.data != null && finResp.data['data'] != null) {
-          final finData = finResp.data['data'];
-          final earningsObj = finData['earnings'] is Map ? finData['earnings'] : null;
-          final custodyObj = finData['collateral_and_custody'] is Map ? finData['collateral_and_custody'] : null;
-          
-          earnings = (earningsObj?['total_delivery_earnings'] as num?)?.toDouble() 
-              ?? (finData['delivery_earnings'] as num?)?.toDouble() ?? 0.0;
-          completedTrips = (earningsObj?['today_completed_trips'] as num?)?.toInt() 
-              ?? (finData['completed_trips_count'] as num?)?.toInt() ?? 0;
-          cod = (custodyObj?['current_cash_custody'] as num?)?.toDouble() 
-              ?? (finData['cod_custody'] as num?)?.toDouble() ?? 0.0;
-          deposit = (custodyObj?['deposit_amount'] as num?)?.toDouble() 
-              ?? (finData['deposit_amount'] as num?)?.toDouble() ?? 0.0;
-          capacity = (custodyObj?['remaining_capacity'] as num?)?.toDouble() 
-              ?? (finData['remaining_deposit_capacity'] as num?)?.toDouble() ?? 0.0;
-        }
-      } catch (e) {
-        debugPrint('⚠️ [Driver Financials Fetch] Error: $e');
+      final activeOrder = activeOrders.isNotEmpty ? activeOrders.first : null;
+
+      double earnings = state.todayEarnings;
+      int completedTrips = state.completedOrdersCount;
+      double cod = state.codCustody;
+      double deposit = state.depositAmount;
+      double capacity = state.remainingDepositCapacity;
+
+      if (finResp != null && finResp.statusCode == 200 && finResp.data != null && finResp.data['data'] != null) {
+        final finData = finResp.data['data'];
+        final earningsObj = finData['earnings'] is Map ? finData['earnings'] : null;
+        final custodyObj = finData['collateral_and_custody'] is Map ? finData['collateral_and_custody'] : null;
+
+        earnings = (earningsObj?['total_delivery_earnings'] as num?)?.toDouble() 
+            ?? (finData['delivery_earnings'] as num?)?.toDouble() ?? 0.0;
+        completedTrips = (earningsObj?['today_completed_trips'] as num?)?.toInt() 
+            ?? (finData['completed_trips_count'] as num?)?.toInt() ?? 0;
+        cod = (custodyObj?['current_cash_custody'] as num?)?.toDouble() 
+            ?? (finData['cod_custody'] as num?)?.toDouble() ?? 0.0;
+        deposit = (custodyObj?['deposit_amount'] as num?)?.toDouble() 
+            ?? (finData['deposit_amount'] as num?)?.toDouble() ?? 0.0;
+        capacity = (custodyObj?['remaining_capacity'] as num?)?.toDouble() 
+            ?? (finData['remaining_deposit_capacity'] as num?)?.toDouble() ?? 0.0;
       }
 
       emit(state.copyWith(
@@ -92,6 +113,7 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
         remainingDepositCapacity: capacity,
         shiftHours: 0.0,
         acceptanceRate: 100.0,
+        unreadNotificationsCount: unreadNotifications,
         errorMessage: null,
       ));
 
@@ -136,13 +158,16 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
     _pollTimer?.cancel();
     if (state.profile?.isOnline != true) return;
 
-    _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+    _pollTimer = Timer.periodic(const Duration(seconds: 6), (_) async {
       if (isClosed) return;
       if (state.profile?.isOnline != true) {
         _pollTimer?.cancel();
         return;
       }
-      await _fetchData();
+      _pollTicks++;
+      // Full financials refreshed every 5 ticks (~30s), active orders & profile refreshed every 6s
+      final shouldFetchFin = (_pollTicks % 5 == 0);
+      await _fetchData(fetchFullFinancials: shouldFetchFin);
     });
   }
 

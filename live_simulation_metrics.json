@@ -1,0 +1,28 @@
+{
+    "status": "running",
+    "start_time": "2026-09-24 18:11:06",
+    "current_time": "2026-09-24 18:42:44",
+    "elapsed_seconds": 1897.5,
+    "total_duration_seconds": 1800,
+    "target_orders": 1000,
+    "orders_placed": 1000,
+    "orders_completed": 999,
+    "orders_in_flight": 1,
+    "active_breakdown": {
+        "pending": 0,
+        "preparing": 0,
+        "ready_for_pickup": 0,
+        "on_the_way": 1
+    },
+    "financials": {
+        "gmv": 63400.05,
+        "food_sales": 54390.05,
+        "delivery_fees": 9010,
+        "cash_collected": 38986.2,
+        "online_sales": 24413.85,
+        "driver_earnings": 7208,
+        "platform_margin": 1802
+    },
+    "progress_percent": 100,
+    "completion_percent": 99.9
+}
