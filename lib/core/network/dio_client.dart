@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_constants.dart';
+import 'api_logger.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
@@ -36,19 +36,13 @@ class DioClient {
           if (_authToken != null) {
             options.headers['Authorization'] = 'Bearer $_authToken';
           }
-          debugPrint('🌐 [Driver Dio REQ] ${options.method} -> ${options.uri}');
           return handler.next(options);
-        },
-        onResponse: (response, handler) {
-          debugPrint('✅ [Driver Dio RESP] [${response.statusCode}] ${response.requestOptions.path}');
-          return handler.next(response);
-        },
-        onError: (DioException error, handler) {
-          debugPrint('❌ [Driver Dio ERR] ${error.message} on ${error.requestOptions.path}');
-          return handler.next(error);
         },
       ),
     );
+
+    // يُضاف أخيراً ليرى الطلب بترويسته النهائية بعد إضافة التوكن.
+    dio.interceptors.add(ApiLogger(tag: 'Driver API'));
   }
 
   static void setToken(String token) {

@@ -1,14 +1,16 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ApiConstants {
   ApiConstants._();
 
-  static String get baseUrl {
-    if (kIsWeb) return 'http://127.0.0.1:8000/api';
-    if (Platform.isAndroid) return 'http://10.0.2.2:8000/api';
-    return 'http://127.0.0.1:8000/api';
-  }
+  /// عنوان الـ API: سيرفر وينجز افتراضياً على كل المنصات.
+  ///
+  /// للتشغيل على باك إند محلي أثناء التطوير فقط:
+  ///   flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api   (محاكي أندرويد)
+  ///   flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api  (iOS / ويب)
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://169.58.30.135.sslip.io/api',
+  );
 
   // Auth endpoints
   static const String login = '/login';
