@@ -136,6 +136,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           child: DriverLiveMapWidget(
             activeOrder: state.activeOrder,
             isOnline: isOnline,
+            driverLat: state.driverLat,
+            driverLng: state.driverLng,
             initialFocus: _mapFocus,
             onFocusChanged: (target) {
               setState(() => _mapFocus = target);

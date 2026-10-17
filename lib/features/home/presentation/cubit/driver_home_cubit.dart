@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../location/data/repositories/location_repository_impl.dart';
+import '../../../location/data/services/device_location_service.dart';
 import '../../../location/domain/repositories/location_repository.dart';
 import '../../../orders/data/driver_order_model.dart';
 import '../../../orders/data/repositories/orders_repository_impl.dart';
@@ -20,17 +22,25 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
   final OrdersRepository _ordersRepository;
   final AuthRepository _authRepository;
   final LocationRepository _locationRepository;
+  final DeviceLocationService _locationService;
   Timer? _pollTimer;
+  StreamSubscription<Position>? _positionSub;
+
+  /// البث يصدر كل 10 أمتار، لكن لا نرسل للخادم أكثر من مرة كل 5 ثوانٍ.
+  static const Duration _telemetryInterval = Duration(seconds: 5);
+  DateTime? _lastTelemetryAt;
 
   DriverHomeCubit({
     ProfileRepository? profileRepository,
     OrdersRepository? ordersRepository,
     AuthRepository? authRepository,
     LocationRepository? locationRepository,
+    DeviceLocationService? locationService,
   })  : _profileRepository = profileRepository ?? ProfileRepositoryImpl(),
         _ordersRepository = ordersRepository ?? OrdersRepositoryImpl(),
         _authRepository = authRepository ?? AuthRepositoryImpl(),
         _locationRepository = locationRepository ?? LocationRepositoryImpl(),
+        _locationService = locationService ?? DeviceLocationService(),
         super(const DriverHomeState());
 
   Future<void> loadHomeData() async {
@@ -119,8 +129,10 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
 
       if (profile.isOnline) {
         _startPolling();
+        await startLocationTracking();
       } else {
         _pollTimer?.cancel();
+        await stopLocationTracking();
       }
     } on UnauthorizedException {
       debugPrint('🔒 [Driver Session] 401 Unauthorized - Session expired.');
@@ -214,6 +226,63 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
     }
   }
 
+  /// يبدأ بثّ الموقع اللحظي: يحدّث الخريطة فورًا ويرسل للخادم بوتيرة مخفّفة.
+  Future<void> startLocationTracking() async {
+    if (_positionSub != null) return;
+
+    // غياب الـ GPS لا يمنع استخدام التطبيق، لذا نبتلع الخطأ هنا عمدًا.
+    final LocationUnavailableReason? blocked;
+    try {
+      blocked = await _locationService.ensureReady();
+    } catch (e, st) {
+      debugPrint('📍 [Driver GPS] could not start tracking: $e\n$st');
+      return;
+    }
+    if (blocked != null) {
+      debugPrint('📍 [Driver GPS] tracking unavailable: $blocked');
+      return;
+    }
+
+    // اعرض آخر موقع معروف ريثما تصل أول قراءة من البث.
+    final seed = await _locationService.lastKnown();
+    if (seed != null && !isClosed) _emitPosition(seed, sendToServer: false);
+
+    _positionSub = _locationService.watchPosition().listen((position) {
+      if (isClosed) return;
+      _emitPosition(position);
+    });
+  }
+
+  Future<void> stopLocationTracking() async {
+    await _positionSub?.cancel();
+    _positionSub = null;
+    _lastTelemetryAt = null;
+  }
+
+  void _emitPosition(Position position, {bool sendToServer = true}) {
+    emit(state.copyWith(
+      driverLat: position.latitude,
+      driverLng: position.longitude,
+      driverHeading: position.heading,
+    ));
+
+    if (!sendToServer) return;
+
+    final now = DateTime.now();
+    if (_lastTelemetryAt != null &&
+        now.difference(_lastTelemetryAt!) < _telemetryInterval) {
+      return;
+    }
+    _lastTelemetryAt = now;
+
+    unawaited(updateLocation(
+      position.latitude,
+      position.longitude,
+      heading: position.heading,
+      accuracy: position.accuracy,
+    ));
+  }
+
   Future<void> updateLocation(
     double latitude,
     double longitude, {
@@ -288,6 +357,7 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
   @override
   Future<void> close() {
     _pollTimer?.cancel();
+    _positionSub?.cancel();
     return super.close();
   }
 }

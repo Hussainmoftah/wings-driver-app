@@ -19,6 +19,11 @@ class DriverHomeState extends Equatable {
   final String? errorMessage;
   final bool isUpdatingStatus;
 
+  /// الموقع اللحظي للمندوب من بثّ GPS؛ يبقى null قبل وصول أول قراءة.
+  final double? driverLat;
+  final double? driverLng;
+  final double? driverHeading;
+
   const DriverHomeState({
     this.status = DriverHomeStatus.initial,
     this.profile,
@@ -33,6 +38,9 @@ class DriverHomeState extends Equatable {
     this.unreadNotificationsCount = 0,
     this.errorMessage,
     this.isUpdatingStatus = false,
+    this.driverLat,
+    this.driverLng,
+    this.driverHeading,
   });
 
   bool get isOnline => profile?.isOnline ?? false;
@@ -52,6 +60,9 @@ class DriverHomeState extends Equatable {
     int? unreadNotificationsCount,
     String? errorMessage,
     bool? isUpdatingStatus,
+    double? driverLat,
+    double? driverLng,
+    double? driverHeading,
   }) {
     return DriverHomeState(
       status: status ?? this.status,
@@ -67,6 +78,9 @@ class DriverHomeState extends Equatable {
       unreadNotificationsCount: unreadNotificationsCount ?? this.unreadNotificationsCount,
       errorMessage: errorMessage,
       isUpdatingStatus: isUpdatingStatus ?? this.isUpdatingStatus,
+      driverLat: driverLat ?? this.driverLat,
+      driverLng: driverLng ?? this.driverLng,
+      driverHeading: driverHeading ?? this.driverHeading,
     );
   }
 
@@ -85,5 +99,8 @@ class DriverHomeState extends Equatable {
         unreadNotificationsCount,
         errorMessage,
         isUpdatingStatus,
+        driverLat,
+        driverLng,
+        driverHeading,
       ];
 }
