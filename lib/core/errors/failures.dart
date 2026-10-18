@@ -15,15 +15,21 @@ class ServerFailure extends Failure {
 }
 
 class NetworkFailure extends Failure {
-  const NetworkFailure({super.message = 'تعذر الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت.'});
+  const NetworkFailure({
+    super.message = 'تعذر الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت.',
+  });
 }
 
 class UnauthorizedFailure extends Failure {
-  const UnauthorizedFailure({super.message = 'انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول.'});
+  const UnauthorizedFailure({
+    super.message = 'انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول.',
+  });
 }
 
 class ForbiddenFailure extends Failure {
-  const ForbiddenFailure({super.message = 'ليس لديك الصلاحية المطلوبة لتنفيذ هذا الإجراء.'});
+  const ForbiddenFailure({
+    super.message = 'ليس لديك الصلاحية المطلوبة لتنفيذ هذا الإجراء.',
+  });
 }
 
 class NotFoundFailure extends Failure {

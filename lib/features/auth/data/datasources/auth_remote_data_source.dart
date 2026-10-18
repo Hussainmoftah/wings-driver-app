@@ -17,17 +17,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response = await _dio.post(
         ApiConstants.login,
-        data: {
-          'email': email.trim(),
-          'password': password,
-        },
+        data: {'email': email.trim(), 'password': password},
       );
 
       if (response.statusCode == 200 && response.data != null) {
         return response.data as Map<String, dynamic>;
       } else if (response.statusCode == 401) {
         throw UnauthorizedException(
-          message: response.data?['message'] ?? 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+          message:
+              response.data?['message'] ??
+              'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
         );
       } else if (response.statusCode == 403) {
         throw ForbiddenException(
@@ -43,7 +42,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (e.response != null) {
         if (e.response?.statusCode == 401) {
           throw UnauthorizedException(
-            message: e.response?.data?['message'] ?? 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+            message:
+                e.response?.data?['message'] ??
+                'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
           );
         } else if (e.response?.statusCode == 403) {
           throw ForbiddenException(

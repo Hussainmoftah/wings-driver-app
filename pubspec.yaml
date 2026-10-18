@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # نظام تصميم سديم المشترك (الألوان والخطوط والمقاسات والمكونات)
+  sadeem_ui:
+    path: ../sadeem_ui
   flutter_localizations:
     sdk: flutter
 
@@ -18,7 +21,6 @@ dependencies:
   dio: ^5.8.0+1
   http: ^1.6.0
   shared_preferences: ^2.5.5
-  google_fonts: ^8.2.1
   intl: ^0.20.2
   flutter_map: ^8.3.2
   latlong2: ^0.10.1
@@ -31,3 +33,18 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # خط التطبيق مضمّن (لا يُحمّل من الإنترنت) حتى يظهر بنفس الشكل على كل الأجهزة
+  fonts:
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Tajawal-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Tajawal-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Tajawal-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Tajawal-ExtraBold.ttf
+          weight: 800

@@ -2,6 +2,7 @@ import '../../../notifications/screens/driver_notifications_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../profile/data/driver_profile_model.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 
 class DriverDutyHeader extends StatelessWidget {
   final DriverProfileModel? profile;
@@ -51,7 +52,9 @@ class DriverDutyHeader extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isOnline ? AppColors.onlineGreen : AppColors.textLight,
+                          color: isOnline
+                              ? AppColors.onlineGreen
+                              : AppColors.textLight,
                           width: 2.5,
                         ),
                         color: AppColors.darkCardSecondary,
@@ -71,9 +74,14 @@ class DriverDutyHeader extends StatelessWidget {
                         width: 14,
                         height: 14,
                         decoration: BoxDecoration(
-                          color: isOnline ? AppColors.onlineGreen : AppColors.offlineRed,
+                          color: isOnline
+                              ? AppColors.onlineGreen
+                              : AppColors.offlineRed,
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.darkCard, width: 2),
+                          border: Border.all(
+                            color: AppColors.darkCard,
+                            width: 2,
+                          ),
                         ),
                       ),
                     ),
@@ -87,12 +95,12 @@ class DriverDutyHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        profile?.name ?? 'كابتن وينجز',
+                        profile?.name ?? 'كابتن سديم',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
+                          fontFamily: 'Tajawal',
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -101,7 +109,10 @@ class DriverDutyHeader extends StatelessWidget {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.darkCardSecondary,
                               borderRadius: BorderRadius.circular(6),
@@ -109,14 +120,18 @@ class DriverDutyHeader extends StatelessWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.two_wheeler_rounded, size: 13, color: AppColors.gold),
+                                const Icon(
+                                  Icons.two_wheeler_rounded,
+                                  size: 13,
+                                  color: AppColors.gold,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   profile?.vehicleType ?? 'دراجة نارية',
                                   style: const TextStyle(
-                                    color: AppColors.textLight,
-                                    fontSize: 11,
-                                    fontFamily: 'Cairo',
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                    fontFamily: 'Tajawal',
                                   ),
                                 ),
                               ],
@@ -125,7 +140,11 @@ class DriverDutyHeader extends StatelessWidget {
                           const SizedBox(width: 8),
                           Row(
                             children: const [
-                              Icon(Icons.star_rounded, size: 14, color: AppColors.gold),
+                              Icon(
+                                Icons.star_rounded,
+                                size: 14,
+                                color: AppColors.gold,
+                              ),
                               SizedBox(width: 2),
                               Text(
                                 '4.9',
@@ -133,7 +152,7 @@ class DriverDutyHeader extends StatelessWidget {
                                   color: Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: 'Cairo',
+                                  fontFamily: 'Tajawal',
                                 ),
                               ),
                             ],
@@ -151,11 +170,17 @@ class DriverDutyHeader extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 22),
+                    icon: const Icon(
+                      Icons.notifications_none_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const DriverNotificationsScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const DriverNotificationsScreen(),
+                        ),
                       );
                     },
                   ),
@@ -169,12 +194,15 @@ class DriverDutyHeader extends StatelessWidget {
               onTap: isUpdating ? null : () => onToggleDuty(!isOnline),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isOnline
-                        ? [const Color(0xFF059669), const Color(0xFF10B981)]
-                        : [const Color(0xFF334155), const Color(0xFF1E293B)],
+                        ? [SColors.emerald600, SColors.emerald500]
+                        : [SColors.slate700, SColors.slate800],
                     begin: Alignment.centerRight,
                     end: Alignment.centerLeft,
                   ),
@@ -182,7 +210,9 @@ class DriverDutyHeader extends StatelessWidget {
                   boxShadow: isOnline
                       ? [
                           BoxShadow(
-                            color: AppColors.onlineGreen.withValues(alpha: 0.35),
+                            color: AppColors.onlineGreen.withValues(
+                              alpha: 0.35,
+                            ),
                             blurRadius: 14,
                             offset: const Offset(0, 4),
                           ),
@@ -199,7 +229,9 @@ class DriverDutyHeader extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isOnline ? Icons.flash_on_rounded : Icons.power_settings_new_rounded,
+                        isOnline
+                            ? Icons.flash_on_rounded
+                            : Icons.power_settings_new_rounded,
                         color: Colors.white,
                         size: 20,
                       ),
@@ -212,20 +244,24 @@ class DriverDutyHeader extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isOnline ? 'الوردية نشطة (أنت متصل الآن)' : 'خارج الوردية (أنت غير متصل)',
+                            isOnline
+                                ? 'الوردية نشطة (أنت متصل الآن)'
+                                : 'خارج الوردية (أنت غير متصل)',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
+                              fontFamily: 'Tajawal',
                             ),
                           ),
                           Text(
-                            isOnline ? 'جاهز ومؤهل لاستقبال الطلبات الفورية' : 'اضغط للاتصال والبدء في استلام الطلبات',
+                            isOnline
+                                ? 'جاهز ومؤهل لاستقبال الطلبات الفورية'
+                                : 'اضغط للاتصال والبدء في استلام الطلبات',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 11,
-                              fontFamily: 'Cairo',
+                              fontSize: 12,
+                              fontFamily: 'Tajawal',
                             ),
                           ),
                         ],
@@ -237,11 +273,17 @@ class DriverDutyHeader extends StatelessWidget {
                       const SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     else
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
@@ -249,10 +291,12 @@ class DriverDutyHeader extends StatelessWidget {
                         child: Text(
                           isOnline ? 'إيقاف' : 'اتصال',
                           style: TextStyle(
-                            color: isOnline ? AppColors.onlineGreen : AppColors.darkCard,
+                            color: isOnline
+                                ? AppColors.onlineGreen
+                                : AppColors.darkCard,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                       ),

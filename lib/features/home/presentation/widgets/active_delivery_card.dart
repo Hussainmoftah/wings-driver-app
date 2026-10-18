@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../orders/data/driver_order_model.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 
 class ActiveDeliveryCard extends StatefulWidget {
   final DriverOrderModel order;
@@ -27,16 +28,24 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isReadyForPickup = widget.order.status == 'ready' || widget.order.status == 'accepted' || widget.order.status == 'preparing';
-    final bool isOnTheWay = widget.order.status == 'on_the_way' || widget.order.status == 'on_delivery';
+    final bool isReadyForPickup =
+        widget.order.status == 'ready' ||
+        widget.order.status == 'accepted' ||
+        widget.order.status == 'preparing';
+    final bool isOnTheWay =
+        widget.order.status == 'on_the_way' ||
+        widget.order.status == 'on_delivery';
 
     // Calculate total item units
-    final int totalUnitsCount = widget.order.items.fold(0, (sum, item) => sum + item.quantity);
+    final int totalUnitsCount = widget.order.items.fold(
+      0,
+      (sum, item) => sum + item.quantity,
+    );
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.sc.surface,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: isOnTheWay ? AppColors.onlineGreen : AppColors.primary,
@@ -44,7 +53,8 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
         ),
         boxShadow: [
           BoxShadow(
-            color: (isOnTheWay ? AppColors.onlineGreen : AppColors.primary).withValues(alpha: 0.12),
+            color: (isOnTheWay ? AppColors.onlineGreen : AppColors.primary)
+                .withValues(alpha: 0.12),
             blurRadius: 18,
             offset: const Offset(0, 6),
           ),
@@ -57,7 +67,8 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: (isOnTheWay ? AppColors.onlineGreen : AppColors.primary).withValues(alpha: 0.08),
+              color: (isOnTheWay ? AppColors.onlineGreen : AppColors.primary)
+                  .withValues(alpha: 0.08),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -71,11 +82,15 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isOnTheWay ? AppColors.onlineGreen : AppColors.primary,
+                        color: isOnTheWay
+                            ? AppColors.onlineGreen
+                            : AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isOnTheWay ? Icons.delivery_dining_rounded : Icons.storefront_rounded,
+                        isOnTheWay
+                            ? Icons.delivery_dining_rounded
+                            : Icons.storefront_rounded,
                         color: Colors.white,
                         size: 20,
                       ),
@@ -88,28 +103,31 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                           children: [
                             Text(
                               widget.order.orderNumber,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+                              style: TextStyle(
+                                color: context.sc.textPrimary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                fontFamily: 'Cairo',
+                                fontFamily: 'Tajawal',
                               ),
                             ),
                             if (widget.order.isMultiRestaurant) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryLight,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: const Text(
-                                  'مشترك 🛵',
+                                  'مشترك',
                                   style: TextStyle(
                                     color: AppColors.primary,
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: 'Cairo',
+                                    fontFamily: 'Tajawal',
                                   ),
                                 ),
                               ),
@@ -119,12 +137,16 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                         Text(
                           isOnTheWay
                               ? 'في الطريق لتسليم الزبون'
-                              : (widget.order.isMultiRestaurant ? 'استلام متتابع من المطاعم' : 'جاهز للاستلام من المطعم'),
+                              : (widget.order.isMultiRestaurant
+                                    ? 'استلام متتابع من المطاعم'
+                                    : 'جاهز للاستلام من المطعم'),
                           style: TextStyle(
-                            color: isOnTheWay ? AppColors.onlineGreen : AppColors.primary,
-                            fontSize: 11,
+                            color: isOnTheWay
+                                ? AppColors.onlineGreen
+                                : AppColors.primary,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                       ],
@@ -132,26 +154,33 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.sc.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.sc.border),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text(
+                      Text(
                         'مطلوب تحصيله كاش',
-                        style: TextStyle(color: AppColors.textLight, fontSize: 9, fontFamily: 'Cairo'),
+                        style: TextStyle(
+                          color: context.sc.textSecondary,
+                          fontSize: 12,
+                          fontFamily: 'Tajawal',
+                        ),
                       ),
                       Text(
                         '${widget.order.total.toStringAsFixed(2)} د.ل',
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
+                        style: TextStyle(
+                          color: context.sc.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
+                          fontFamily: 'Tajawal',
                         ),
                       ),
                     ],
@@ -166,7 +195,8 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (widget.order.isMultiRestaurant && widget.order.stops.isNotEmpty) ...[
+                if (widget.order.isMultiRestaurant &&
+                    widget.order.stops.isNotEmpty) ...[
                   // Multi-Stop Route
                   ...widget.order.stops.map((stop) {
                     final isStopCompleted = isOnTheWay;
@@ -175,9 +205,17 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                       children: [
                         _buildLocationTile(
                           title: 'نقطة استلام (محطة ${stop.stopSequence})',
-                          name: stop.restaurantName ?? widget.order.restaurantName ?? 'المطعم',
-                          address: stop.restaurantAddress ?? widget.order.restaurantAddress ?? 'طرابلس',
-                          phone: stop.restaurantPhone ?? widget.order.restaurantPhone,
+                          name:
+                              stop.restaurantName ??
+                              widget.order.restaurantName ??
+                              'المطعم',
+                          address:
+                              stop.restaurantAddress ??
+                              widget.order.restaurantAddress ??
+                              'طرابلس',
+                          phone:
+                              stop.restaurantPhone ??
+                              widget.order.restaurantPhone,
                           icon: Icons.storefront_rounded,
                           iconBg: AppColors.primaryLight,
                           iconColor: AppColors.primary,
@@ -190,7 +228,9 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                           child: Container(
                             height: 18,
                             width: 2,
-                            color: isOnTheWay ? AppColors.onlineGreen : AppColors.border,
+                            color: isOnTheWay
+                                ? AppColors.onlineGreen
+                                : AppColors.border,
                           ),
                         ),
                       ],
@@ -201,7 +241,8 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                   _buildLocationTile(
                     title: 'نقطة الاستلام (المطعم)',
                     name: widget.order.restaurantName ?? 'مطعم الأجنحة',
-                    address: widget.order.restaurantAddress ?? 'طريق الشط - طرابلس',
+                    address:
+                        widget.order.restaurantAddress ?? 'طريق الشط - طرابلس',
                     phone: widget.order.restaurantPhone,
                     icon: Icons.storefront_rounded,
                     iconBg: AppColors.primaryLight,
@@ -217,7 +258,9 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                     child: Container(
                       height: 20,
                       width: 2,
-                      color: isOnTheWay ? AppColors.onlineGreen : AppColors.border,
+                      color: isOnTheWay
+                          ? AppColors.onlineGreen
+                          : AppColors.border,
                     ),
                   ),
                 ],
@@ -225,8 +268,9 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                 // 3. Timeline Step 2: Customer Delivery Destination
                 _buildLocationTile(
                   title: 'نقطة التسليم (الزبون)',
-                  name: widget.order.customerName ?? 'زبون وينجز',
-                  address: widget.order.customerAddress ?? 'حي الأندلس - طرابلس',
+                  name: widget.order.customerName ?? 'زبون سديم',
+                  address:
+                      widget.order.customerAddress ?? 'حي الأندلس - طرابلس',
                   phone: widget.order.customerPhone,
                   icon: Icons.location_on_rounded,
                   iconBg: AppColors.onlineGreenLight,
@@ -237,7 +281,7 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                 ),
 
                 const SizedBox(height: 16),
-                const Divider(color: AppColors.borderLight),
+                Divider(color: context.sc.borderSubtle),
                 const SizedBox(height: 8),
 
                 // 4. Order Items Summary Breakdown (Clearly Presented)
@@ -246,21 +290,28 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.receipt_long_rounded, color: AppColors.textPrimary, size: 20),
+                        Icon(
+                          Icons.receipt_long_rounded,
+                          color: context.sc.textPrimary,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'تفاصيل محتويات الطلبية',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: context.sc.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primaryLight,
                         borderRadius: BorderRadius.circular(20),
@@ -269,9 +320,9 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                         'إجمالي: $totalUnitsCount عناصر (${widget.order.items.length} أصناف)',
                         style: const TextStyle(
                           color: AppColors.primary,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
+                          fontFamily: 'Tajawal',
                         ),
                       ),
                     ),
@@ -280,87 +331,96 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                 const SizedBox(height: 12),
 
                 // Rich Item Cards List
-                ...widget.order.items.map((item) => Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Row(
-                        children: [
-                          // Quantity Badge (العدد واضح جداً)
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${item.quantity}x',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Cairo',
-                                ),
+                ...widget.order.items.map(
+                  (item) => Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: context.sc.page,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: context.sc.border),
+                    ),
+                    child: Row(
+                      children: [
+                        // Quantity Badge (العدد واضح جداً)
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${item.quantity}x',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Tajawal',
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                        ),
+                        const SizedBox(width: 12),
 
-                          // Item Name & Unit Price
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.productName,
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Cairo',
-                                  ),
+                        // Item Name & Unit Price
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.productName,
+                                style: TextStyle(
+                                  color: context.sc.textPrimary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Tajawal',
                                 ),
-                                Text(
-                                  'سعر الوحدة: ${item.unitPrice.toStringAsFixed(2)} د.ل',
-                                  style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 11,
-                                    fontFamily: 'Cairo',
-                                  ),
+                              ),
+                              Text(
+                                'سعر الوحدة: ${item.unitPrice.toStringAsFixed(2)} د.ل',
+                                style: TextStyle(
+                                  color: context.sc.textSecondary,
+                                  fontSize: 12,
+                                  fontFamily: 'Tajawal',
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
+                        ),
 
-                          // Total for line
-                          Text(
-                            '${item.totalPrice.toStringAsFixed(2)} د.ل',
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
-                            ),
+                        // Total for line
+                        Text(
+                          '${item.totalPrice.toStringAsFixed(2)} د.ل',
+                          style: TextStyle(
+                            color: context.sc.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Tajawal',
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
                 // Delivery Fee Row
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 6,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'أجرة التوصيل المستحقة للسائق:',
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontFamily: 'Cairo'),
+                        style: TextStyle(
+                          color: context.sc.textSecondary,
+                          fontSize: 12,
+                          fontFamily: 'Tajawal',
+                        ),
                       ),
                       Text(
                         '+${widget.order.deliveryFee.toStringAsFixed(2)} د.ل',
@@ -368,7 +428,7 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                           color: AppColors.onlineGreen,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
-                          fontFamily: 'Cairo',
+                          fontFamily: 'Tajawal',
                         ),
                       ),
                     ],
@@ -386,28 +446,43 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                         ? null
                         : () {
                             if (isReadyForPickup) {
-                              widget.onUpdateStatus('on_the_way', widget.order.id);
+                              widget.onUpdateStatus(
+                                'on_the_way',
+                                widget.order.id,
+                              );
                             } else if (isOnTheWay) {
-                              widget.onUpdateStatus('delivered', widget.order.id);
+                              widget.onUpdateStatus(
+                                'delivered',
+                                widget.order.id,
+                              );
                             }
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isOnTheWay ? AppColors.onlineGreen : AppColors.primary,
+                      backgroundColor: isOnTheWay
+                          ? AppColors.onlineGreen
+                          : AppColors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       elevation: 0,
                     ),
                     child: widget.isUpdating
                         ? const SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
                           )
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                isOnTheWay ? Icons.check_circle_outline_rounded : Icons.takeout_dining_rounded,
+                                isOnTheWay
+                                    ? Icons.check_circle_outline_rounded
+                                    : Icons.takeout_dining_rounded,
                                 size: 22,
                               ),
                               const SizedBox(width: 8),
@@ -418,7 +493,7 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: 'Cairo',
+                                  fontFamily: 'Tajawal',
                                 ),
                               ),
                             ],
@@ -472,20 +547,28 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
             children: [
               Text(
                 title,
-                style: const TextStyle(color: AppColors.textLight, fontSize: 11, fontFamily: 'Cairo'),
+                style: TextStyle(
+                  color: context.sc.textSecondary,
+                  fontSize: 12,
+                  fontFamily: 'Tajawal',
+                ),
               ),
               Text(
                 name,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
+                style: TextStyle(
+                  color: context.sc.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'Cairo',
+                  fontFamily: 'Tajawal',
                 ),
               ),
               Text(
                 address,
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontFamily: 'Cairo'),
+                style: TextStyle(
+                  color: context.sc.textSecondary,
+                  fontSize: 12,
+                  fontFamily: 'Tajawal',
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -501,9 +584,9 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: context.sc.page,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.sc.border),
                   ),
                   child: Icon(Icons.map_rounded, color: iconColor, size: 18),
                 ),
@@ -518,7 +601,11 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                     color: AppColors.primaryLight,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.call_rounded, color: AppColors.primary, size: 18),
+                  child: const Icon(
+                    Icons.call_rounded,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
                 ),
               ),
           ],

@@ -6,9 +6,10 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../../profile/data/repositories/profile_repository_impl.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
 import 'driver_login_screen.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 
 /// بوابة التحقق من الجلسة عند إقلاع التطبيق (DriverAuthGate).
-/// 
+///
 /// تعتمد كلياً على العقود المعمارية (Domain Repositories):
 /// 1. التحقق من وجود توكن صالح عبر [AuthRepository.hasValidToken]
 /// 2. استعلام الملف الشخصي عبر [ProfileRepository.getProfile]:
@@ -59,7 +60,9 @@ class _DriverAuthGateState extends State<DriverAuthGate> {
     } on UnauthorizedException {
       if (!mounted) return;
       await _authRepository.logout();
-      _navigateToLogin(errorMessage: 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.');
+      _navigateToLogin(
+        errorMessage: 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.',
+      );
     } on ForbiddenException catch (e) {
       if (!mounted) return;
       await _authRepository.logout();
@@ -81,16 +84,14 @@ class _DriverAuthGateState extends State<DriverAuthGate> {
 
   void _navigateToHome() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const DriverHomeScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const DriverHomeScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: SColors.slate900,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -100,14 +101,14 @@ class _DriverAuthGateState extends State<DriverAuthGate> {
               height: 90,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF0052FF), Color(0xFF38BDF8)],
+                  colors: [SColors.brand, SColors.sky400],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF0052FF).withValues(alpha: 0.35),
+                    color: SColors.brand.withValues(alpha: 0.35),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -123,21 +124,21 @@ class _DriverAuthGateState extends State<DriverAuthGate> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'كابتن وينجز | Wings Driver',
+              'كابتن سديم | Sadeem Captain',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Cairo',
+                fontFamily: 'Tajawal',
               ),
             ),
             const SizedBox(height: 8),
             const Text(
               'جاري التحقق من بيانات الجلسة...',
               style: TextStyle(
-                color: Color(0xFF94A3B8),
+                color: SColors.slate400,
                 fontSize: 13,
-                fontFamily: 'Cairo',
+                fontFamily: 'Tajawal',
               ),
             ),
             const SizedBox(height: 32),
@@ -146,7 +147,7 @@ class _DriverAuthGateState extends State<DriverAuthGate> {
               height: 28,
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
+                valueColor: AlwaysStoppedAnimation<Color>(SColors.sky400),
               ),
             ),
           ],

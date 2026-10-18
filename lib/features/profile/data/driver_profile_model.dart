@@ -47,10 +47,18 @@ class DriverProfileModel {
       statusLabel: json['status_label'] ?? 'غير متصل',
       vehicleType: json['vehicle_type'],
       licenseNumber: json['license_number'],
-      currentLatitude: json['current_latitude'] != null ? (json['current_latitude'] as num).toDouble() : null,
-      currentLongitude: json['current_longitude'] != null ? (json['current_longitude'] as num).toDouble() : null,
-      heading: json['heading'] != null ? (json['heading'] as num).toDouble() : null,
-      accuracy: json['accuracy'] != null ? (json['accuracy'] as num).toDouble() : null,
+      currentLatitude: json['current_latitude'] != null
+          ? (json['current_latitude'] as num).toDouble()
+          : null,
+      currentLongitude: json['current_longitude'] != null
+          ? (json['current_longitude'] as num).toDouble()
+          : null,
+      heading: json['heading'] != null
+          ? (json['heading'] as num).toDouble()
+          : null,
+      accuracy: json['accuracy'] != null
+          ? (json['accuracy'] as num).toDouble()
+          : null,
       lastLocationAt: json['last_location_at'],
       isLocationFresh: json['is_location_fresh'] == true,
       hasActiveOrder: json['has_active_order'] == true,

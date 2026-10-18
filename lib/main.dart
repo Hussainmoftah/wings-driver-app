@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/screens/driver_auth_gate.dart';
 import 'features/home/presentation/cubit/driver_home_cubit.dart';
@@ -17,25 +17,17 @@ class WingsDriverApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<DriverHomeCubit>(
-          create: (_) => DriverHomeCubit(),
-        ),
+        BlocProvider<DriverHomeCubit>(create: (_) => DriverHomeCubit()),
       ],
       child: MaterialApp(
-        title: 'Wings Driver | كابتن وينجز',
+        title: 'كابتن سديم',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        locale: const Locale('ar', 'LY'),
-        supportedLocales: const [
-          Locale('ar', 'LY'),
-          Locale('ar', ''),
-          Locale('en', ''),
-        ],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        locale: SadeemLocale.locale,
+        supportedLocales: SadeemLocale.supportedLocales,
+        localizationsDelegates: SadeemLocale.delegates,
         home: const DriverAuthGate(),
       ),
     );

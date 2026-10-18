@@ -3,11 +3,7 @@ class ServerException implements Exception {
   final int? statusCode;
   final dynamic data;
 
-  const ServerException({
-    required this.message,
-    this.statusCode,
-    this.data,
-  });
+  const ServerException({required this.message, this.statusCode, this.data});
 
   @override
   String toString() => 'ServerException: $message (Status: $statusCode)';
@@ -16,7 +12,9 @@ class ServerException implements Exception {
 class NetworkException implements Exception {
   final String message;
 
-  const NetworkException({this.message = 'تعذر الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت.'});
+  const NetworkException({
+    this.message = 'تعذر الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت.',
+  });
 
   @override
   String toString() => 'NetworkException: $message';
@@ -25,7 +23,9 @@ class NetworkException implements Exception {
 class UnauthorizedException implements Exception {
   final String message;
 
-  const UnauthorizedException({this.message = 'انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول.'});
+  const UnauthorizedException({
+    this.message = 'انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول.',
+  });
 
   @override
   String toString() => 'UnauthorizedException: $message';
@@ -34,7 +34,9 @@ class UnauthorizedException implements Exception {
 class ForbiddenException implements Exception {
   final String message;
 
-  const ForbiddenException({this.message = 'ليس لديك الصلاحية المطلوبة لتنفيذ هذا الإجراء.'});
+  const ForbiddenException({
+    this.message = 'ليس لديك الصلاحية المطلوبة لتنفيذ هذا الإجراء.',
+  });
 
   @override
   String toString() => 'ForbiddenException: $message';
@@ -53,10 +55,7 @@ class ValidationException implements Exception {
   final String message;
   final Map<String, dynamic>? errors;
 
-  const ValidationException({
-    required this.message,
-    this.errors,
-  });
+  const ValidationException({required this.message, this.errors});
 
   @override
   String toString() => 'ValidationException: $message';

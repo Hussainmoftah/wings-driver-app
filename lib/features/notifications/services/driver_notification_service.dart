@@ -3,7 +3,8 @@ import '../../../../core/network/api_service.dart';
 import '../models/driver_notification_model.dart';
 
 class DriverNotificationService {
-  static final DriverNotificationService _instance = DriverNotificationService._internal();
+  static final DriverNotificationService _instance =
+      DriverNotificationService._internal();
   factory DriverNotificationService() => _instance;
   DriverNotificationService._internal();
 
@@ -15,7 +16,9 @@ class DriverNotificationService {
         return (response.data['unread_count'] as num?)?.toInt() ?? 0;
       }
     } catch (e) {
-      debugPrint('⚠️ [DriverNotificationService] Error fetching unread count: $e');
+      debugPrint(
+        '⚠️ [DriverNotificationService] Error fetching unread count: $e',
+      );
     }
     return 0;
   }
@@ -27,21 +30,25 @@ class DriverNotificationService {
     String? category,
   }) async {
     try {
-      final queryParams = <String, dynamic>{
-        'page': page,
-        'per_page': perPage,
-      };
+      final queryParams = <String, dynamic>{'page': page, 'per_page': perPage};
       if (category != null && category != 'all') {
         queryParams['category'] = category;
       }
 
-      final response = await ApiService.get('/notifications', queryParameters: queryParams);
+      final response = await ApiService.get(
+        '/notifications',
+        queryParameters: queryParams,
+      );
       if (response.statusCode == 200 && response.data != null) {
         final List list = response.data['data'] ?? [];
-        return list.map((item) => DriverNotificationItem.fromJson(item)).toList();
+        return list
+            .map((item) => DriverNotificationItem.fromJson(item))
+            .toList();
       }
     } catch (e) {
-      debugPrint('⚠️ [DriverNotificationService] Error fetching notifications: $e');
+      debugPrint(
+        '⚠️ [DriverNotificationService] Error fetching notifications: $e',
+      );
     }
     return [];
   }
@@ -49,7 +56,10 @@ class DriverNotificationService {
   /// تعليم إشعار كمقروء
   Future<bool> markAsRead(int notificationId) async {
     try {
-      final response = await ApiService.put('/notifications/$notificationId/read', {});
+      final response = await ApiService.put(
+        '/notifications/$notificationId/read',
+        {},
+      );
       return response.statusCode == 200;
     } catch (e) {
       debugPrint('⚠️ [DriverNotificationService] Error marking as read: $e');
@@ -63,13 +73,18 @@ class DriverNotificationService {
       final response = await ApiService.put('/notifications/read-all', {});
       return response.statusCode == 200;
     } catch (e) {
-      debugPrint('⚠️ [DriverNotificationService] Error marking all as read: $e');
+      debugPrint(
+        '⚠️ [DriverNotificationService] Error marking all as read: $e',
+      );
       return false;
     }
   }
 
   /// تسجيل توكن الجهاز للإشعارات السحابية
-  Future<bool> registerDeviceToken(String token, {String platform = 'android'}) async {
+  Future<bool> registerDeviceToken(
+    String token, {
+    String platform = 'android',
+  }) async {
     try {
       final response = await ApiService.post('/notifications/device-token', {
         'token': token,
@@ -79,7 +94,9 @@ class DriverNotificationService {
       });
       return response.statusCode == 200;
     } catch (e) {
-      debugPrint('⚠️ [DriverNotificationService] Error registering device token: $e');
+      debugPrint(
+        '⚠️ [DriverNotificationService] Error registering device token: $e',
+      );
       return false;
     }
   }

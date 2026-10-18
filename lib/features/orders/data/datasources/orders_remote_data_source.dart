@@ -6,7 +6,11 @@ import '../../../../core/network/dio_client.dart';
 abstract class OrdersRemoteDataSource {
   Future<Map<String, dynamic>> getActiveOrders();
   Future<Map<String, dynamic>> getOrderDetails(int orderId);
-  Future<Map<String, dynamic>> updateOrderStatus(int orderId, String newStatus, {String? reason});
+  Future<Map<String, dynamic>> updateOrderStatus(
+    int orderId,
+    String newStatus, {
+    String? reason,
+  });
 }
 
 class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
@@ -25,7 +29,8 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
         throw const UnauthorizedException();
       } else if (response.statusCode == 403) {
         throw ForbiddenException(
-          message: response.data?['message'] ?? 'ليس لديك صلاحية لعرض طلبات السائق.',
+          message:
+              response.data?['message'] ?? 'ليس لديك صلاحية لعرض طلبات السائق.',
         );
       } else {
         throw ServerException(
@@ -62,7 +67,8 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
         throw const UnauthorizedException();
       } else if (response.statusCode == 403) {
         throw ForbiddenException(
-          message: response.data?['message'] ?? 'هذا الطلب غير مسند إليك كسائق.',
+          message:
+              response.data?['message'] ?? 'هذا الطلب غير مسند إليك كسائق.',
         );
       } else if (response.statusCode == 404) {
         throw const NotFoundException(message: 'الطلب غير موجود.');
@@ -78,7 +84,9 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
           throw const UnauthorizedException();
         } else if (e.response?.statusCode == 403) {
           throw ForbiddenException(
-            message: e.response?.data?['message'] ?? 'هذا الطلب غير مسند إليك كسائق.',
+            message:
+                e.response?.data?['message'] ??
+                'هذا الطلب غير مسند إليك كسائق.',
           );
         } else if (e.response?.statusCode == 404) {
           throw const NotFoundException(message: 'الطلب غير موجود.');
@@ -93,14 +101,15 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> updateOrderStatus(int orderId, String newStatus, {String? reason}) async {
+  Future<Map<String, dynamic>> updateOrderStatus(
+    int orderId,
+    String newStatus, {
+    String? reason,
+  }) async {
     try {
       final response = await _dio.post(
         ApiConstants.updateOrderStatus(orderId),
-        data: {
-          'status': newStatus,
-          'reason': ?reason,
-        },
+        data: {'status': newStatus, 'reason': ?reason},
       );
 
       if (response.statusCode == 200 && response.data != null) {
@@ -109,7 +118,8 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
         throw const UnauthorizedException();
       } else if (response.statusCode == 403) {
         throw ForbiddenException(
-          message: response.data?['message'] ?? 'غير مصرح لك بتحديث حالة هذا الطلب.',
+          message:
+              response.data?['message'] ?? 'غير مصرح لك بتحديث حالة هذا الطلب.',
         );
       } else if (response.statusCode == 422) {
         throw ValidationException(

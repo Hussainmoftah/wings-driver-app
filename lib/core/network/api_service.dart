@@ -6,10 +6,8 @@ class ApiService {
   static final Dio _dio = DioClient().dio;
 
   /// حفظ التوكن في الذاكرة المحلية وتحديث عميل Dio
-  static Future<void> saveToken(String token) async {
-    DioClient.setToken(token);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('auth_token', token);
+  static Future<void> saveToken(String token, {String? refreshToken}) async {
+    await DioClient.saveSession(token, refreshToken);
   }
 
   /// استرجاع التوكن المخزن محلياً
@@ -28,9 +26,7 @@ class ApiService {
 
   /// تسجيل الخروج وحذف التوكن وتفريغ الجلسة بالكامل
   static Future<void> logout() async {
-    DioClient.clearToken();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
+    await DioClient.clearSession();
   }
 
   /// التحقق مما إذا كان هناك توكن محفوظ

@@ -6,7 +6,7 @@ class OrdersRepositoryImpl implements OrdersRepository {
   final OrdersRemoteDataSource _remoteDataSource;
 
   OrdersRepositoryImpl({OrdersRemoteDataSource? remoteDataSource})
-      : _remoteDataSource = remoteDataSource ?? OrdersRemoteDataSourceImpl();
+    : _remoteDataSource = remoteDataSource ?? OrdersRemoteDataSourceImpl();
 
   @override
   Future<List<DriverOrderModel>> getActiveOrders() async {
@@ -25,7 +25,15 @@ class OrdersRepositoryImpl implements OrdersRepository {
   }
 
   @override
-  Future<void> updateOrderStatus(int orderId, String newStatus, {String? reason}) async {
-    await _remoteDataSource.updateOrderStatus(orderId, newStatus, reason: reason);
+  Future<void> updateOrderStatus(
+    int orderId,
+    String newStatus, {
+    String? reason,
+  }) async {
+    await _remoteDataSource.updateOrderStatus(
+      orderId,
+      newStatus,
+      reason: reason,
+    );
   }
 }

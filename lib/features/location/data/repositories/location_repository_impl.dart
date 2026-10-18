@@ -5,7 +5,7 @@ class LocationRepositoryImpl implements LocationRepository {
   final LocationRemoteDataSource _remoteDataSource;
 
   LocationRepositoryImpl({LocationRemoteDataSource? remoteDataSource})
-      : _remoteDataSource = remoteDataSource ?? LocationRemoteDataSourceImpl();
+    : _remoteDataSource = remoteDataSource ?? LocationRemoteDataSourceImpl();
 
   @override
   Future<void> updateLocation(

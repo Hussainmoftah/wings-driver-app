@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../models/driver_notification_model.dart';
 import '../services/driver_notification_service.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 
 class DriverNotificationsScreen extends StatefulWidget {
   const DriverNotificationsScreen({super.key});
 
   @override
-  State<DriverNotificationsScreen> createState() => _DriverNotificationsScreenState();
+  State<DriverNotificationsScreen> createState() =>
+      _DriverNotificationsScreenState();
 }
 
 class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
-  final DriverNotificationService _notificationService = DriverNotificationService();
+  final DriverNotificationService _notificationService =
+      DriverNotificationService();
   List<DriverNotificationItem> _notifications = [];
   bool _isLoading = true;
   String _selectedCategory = 'all';
@@ -46,11 +49,16 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
     final success = await _notificationService.markAllAsRead();
     if (success && mounted) {
       setState(() {
-        _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
+        _notifications = _notifications
+            .map((n) => n.copyWith(isRead: true))
+            .toList();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('تم تعليم جميع الإشعارات كمقروءة', style: TextStyle(fontFamily: 'Cairo')),
+          content: Text(
+            'تم تعليم جميع الإشعارات كمقروءة',
+            style: TextStyle(fontFamily: 'Tajawal'),
+          ),
           backgroundColor: AppColors.onlineGreen,
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 2),
@@ -66,7 +74,9 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
         setState(() {
           final index = _notifications.indexWhere((n) => n.id == item.id);
           if (index != -1) {
-            _notifications[index] = _notifications[index].copyWith(isRead: true);
+            _notifications[index] = _notifications[index].copyWith(
+              isRead: true,
+            );
           }
         });
       }
@@ -86,69 +96,95 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: _getCategoryColor(item.category).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(_getCategoryIcon(item.category), color: _getCategoryColor(item.category), size: 24),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: context.sc.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _getCategoryColor(
+                      item.category,
+                    ).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Cairo', color: AppColors.textPrimary),
+                  child: Icon(
+                    _getCategoryIcon(item.category),
+                    color: _getCategoryColor(item.category),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontFamily: 'Tajawal',
+                          color: context.sc.textPrimary,
                         ),
-                        if (item.createdAt != null)
-                          Text(
-                            _formatDate(item.createdAt!),
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontFamily: 'Cairo'),
+                      ),
+                      if (item.createdAt != null)
+                        Text(
+                          _formatDate(item.createdAt!),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.sc.textSecondary,
+                            fontFamily: 'Tajawal',
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
-                ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Divider(color: context.sc.borderSubtle),
+            const SizedBox(height: 12),
+            Text(
+              item.body,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.6,
+                fontFamily: 'Tajawal',
+                color: context.sc.textPrimary,
               ),
-              const SizedBox(height: 16),
-              const Divider(color: AppColors.borderLight),
-              const SizedBox(height: 12),
-              Text(
-                item.body,
-                style: const TextStyle(fontSize: 14, height: 1.6, fontFamily: 'Cairo', color: AppColors.textPrimary),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('إغلاق', style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text(
+                  'إغلاق',
+                  style: TextStyle(
+                    fontFamily: 'Tajawal',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -193,118 +229,142 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
   Widget build(BuildContext context) {
     final unreadCount = _notifications.where((n) => !n.isRead).length;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF1F5F9),
-        appBar: AppBar(
-          backgroundColor: AppColors.darkCard,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-            onPressed: () => Navigator.pop(context),
+    return Scaffold(
+      backgroundColor: context.sc.surfaceMuted,
+      appBar: AppBar(
+        backgroundColor: AppColors.darkCard,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+            size: 20,
           ),
-          title: Row(
-            children: [
-              const Text(
-                'مركز الإشعارات',
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          children: [
+            const Text(
+              'مركز الإشعارات',
+              style: TextStyle(
+                fontFamily: 'Tajawal',
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+            if (unreadCount > 0) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.offlineRed,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '$unreadCount جديد',
+                  style: const TextStyle(
+                    fontFamily: 'Tajawal',
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          if (_notifications.any((n) => !n.isRead))
+            TextButton.icon(
+              onPressed: _markAllAsRead,
+              icon: const Icon(
+                Icons.done_all_rounded,
+                color: AppColors.onlineGreen,
+                size: 18,
+              ),
+              label: const Text(
+                'قراءة الكل',
                 style: TextStyle(
-                  fontFamily: 'Cairo',
+                  fontFamily: 'Tajawal',
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
                   color: Colors.white,
                 ),
               ),
-              if (unreadCount > 0) ...[
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.offlineRed,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    '$unreadCount جديد',
-                    style: const TextStyle(fontFamily: 'Cairo', fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                ),
-              ],
-            ],
-          ),
-          actions: [
-            if (_notifications.any((n) => !n.isRead))
-              TextButton.icon(
-                onPressed: _markAllAsRead,
-                icon: const Icon(Icons.done_all_rounded, color: AppColors.onlineGreen, size: 18),
-                label: const Text(
-                  'قراءة الكل',
-                  style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ),
-          ],
-        ),
-        body: Column(
-          children: [
-            // Filter categories
-            Container(
-              color: AppColors.darkCard,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _categories.map((cat) {
-                    final isSelected = _selectedCategory == cat['id'];
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: ChoiceChip(
-                        label: Text(
-                          cat['title']!,
-                          style: TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? Colors.white : AppColors.textLight,
-                          ),
+            ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Filter categories
+          Container(
+            color: AppColors.darkCard,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _categories.map((cat) {
+                  final isSelected = _selectedCategory == cat['id'];
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: ChoiceChip(
+                      label: Text(
+                        cat['title']!,
+                        style: TextStyle(
+                          fontFamily: 'Tajawal',
+                          fontSize: 12,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected
+                              ? Colors.white
+                              : context.sc.textSecondary,
                         ),
-                        selected: isSelected,
-                        selectedColor: AppColors.primary,
-                        backgroundColor: AppColors.darkCardSecondary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        onSelected: (selected) {
-                          if (selected) {
-                            setState(() => _selectedCategory = cat['id']!);
-                            _loadNotifications();
-                          }
-                        },
                       ),
-                    );
-                  }).toList(),
-                ),
+                      selected: isSelected,
+                      selectedColor: AppColors.primary,
+                      backgroundColor: AppColors.darkCardSecondary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() => _selectedCategory = cat['id']!);
+                          _loadNotifications();
+                        }
+                      },
+                    ),
+                  );
+                }).toList(),
               ),
             ),
+          ),
 
-            // Content List
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                  : RefreshIndicator(
-                      onRefresh: _loadNotifications,
-                      color: AppColors.primary,
-                      child: _notifications.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.separated(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: _notifications.length,
-                              separatorBuilder: (ctx, i) => const SizedBox(height: 10),
-                              itemBuilder: (ctx, i) {
-                                final item = _notifications[i];
-                                return _buildNotificationCard(item);
-                              },
-                            ),
-                    ),
-            ),
-          ],
-        ),
+          // Content List
+          Expanded(
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadNotifications,
+                    color: AppColors.primary,
+                    child: _notifications.isEmpty
+                        ? _buildEmptyState()
+                        : ListView.separated(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _notifications.length,
+                            separatorBuilder: (ctx, i) =>
+                                const SizedBox(height: 10),
+                            itemBuilder: (ctx, i) {
+                              final item = _notifications[i];
+                              return _buildNotificationCard(item);
+                            },
+                          ),
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -319,10 +379,12 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: item.isRead ? Colors.white : const Color(0xFFF8FAFC),
+          color: item.isRead ? Colors.white : SColors.slate50,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: item.isRead ? AppColors.borderLight : color.withValues(alpha: 0.35),
+            color: item.isRead
+                ? context.sc.borderSubtle
+                : color.withValues(alpha: 0.35),
             width: item.isRead ? 1 : 1.5,
           ),
           boxShadow: [
@@ -356,10 +418,12 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
                         child: Text(
                           item.title,
                           style: TextStyle(
-                            fontFamily: 'Cairo',
-                            fontWeight: item.isRead ? FontWeight.w600 : FontWeight.bold,
+                            fontFamily: 'Tajawal',
+                            fontWeight: item.isRead
+                                ? FontWeight.w600
+                                : FontWeight.bold,
                             fontSize: 14,
-                            color: AppColors.textPrimary,
+                            color: context.sc.textPrimary,
                           ),
                         ),
                       ),
@@ -378,9 +442,11 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
                   Text(
                     item.body,
                     style: TextStyle(
-                      fontFamily: 'Cairo',
+                      fontFamily: 'Tajawal',
                       fontSize: 12,
-                      color: item.isRead ? AppColors.textSecondary : const Color(0xFF334155),
+                      color: item.isRead
+                          ? context.sc.textSecondary
+                          : context.sc.textStrong,
                       height: 1.4,
                     ),
                     maxLines: 2,
@@ -390,10 +456,10 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
                   if (item.createdAt != null)
                     Text(
                       _formatDate(item.createdAt!),
-                      style: const TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 10,
-                        color: AppColors.textLight,
+                      style: TextStyle(
+                        fontFamily: 'Tajawal',
+                        fontSize: 12,
+                        color: context.sc.textSecondary,
                       ),
                     ),
                 ],
@@ -413,32 +479,39 @@ class _DriverNotificationsScreenState extends State<DriverNotificationsScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.sc.surface,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                ),
               ],
             ),
-            child: const Icon(Icons.notifications_off_outlined, size: 48, color: AppColors.textLight),
+            child: Icon(
+              Icons.notifications_off_outlined,
+              size: 48,
+              color: context.sc.textDisabled,
+            ),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'لا توجد إشعارات حالياً',
             style: TextStyle(
-              fontFamily: 'Cairo',
+              fontFamily: 'Tajawal',
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              color: AppColors.textPrimary,
+              color: context.sc.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'ستظهر هنا إشعارات مهام التوصيل، التحديثات المالية، وتنبيهات الإدارة فور صدورها.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Cairo',
+              fontFamily: 'Tajawal',
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: context.sc.textSecondary,
             ),
           ),
         ],

@@ -177,8 +177,8 @@ class ApiLogger extends Interceptor {
         for (final entry in value.entries)
           entry.key.toString():
               _secretKeys.contains(entry.key.toString().toLowerCase())
-                  ? _placeholder
-                  : _redact(entry.value),
+              ? _placeholder
+              : _redact(entry.value),
       };
     }
 

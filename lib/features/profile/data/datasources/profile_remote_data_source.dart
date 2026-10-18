@@ -24,7 +24,9 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
         throw const UnauthorizedException();
       } else if (response.statusCode == 403) {
         throw ForbiddenException(
-          message: response.data?['message'] ?? 'ليس لديك صلاحية للوصول لملف السائق.',
+          message:
+              response.data?['message'] ??
+              'ليس لديك صلاحية للوصول لملف السائق.',
         );
       } else {
         throw ServerException(

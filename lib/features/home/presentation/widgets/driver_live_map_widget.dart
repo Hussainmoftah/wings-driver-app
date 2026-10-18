@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../orders/data/driver_order_model.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 
 enum MapFocusTarget { driver, restaurant, customer }
 
@@ -53,8 +54,8 @@ class _DriverLiveMapWidgetState extends State<DriverLiveMapWidget>
     super.initState();
     _currentFocus = widget.activeOrder != null
         ? (widget.activeOrder!.status == 'on_the_way'
-            ? MapFocusTarget.customer
-            : widget.initialFocus)
+              ? MapFocusTarget.customer
+              : widget.initialFocus)
         : MapFocusTarget.driver;
 
     _pulseController = AnimationController(
@@ -82,7 +83,8 @@ class _DriverLiveMapWidgetState extends State<DriverLiveMapWidget>
     super.dispose();
   }
 
-  LatLng get _driverPoint => widget.driverLat != null && widget.driverLng != null
+  LatLng get _driverPoint =>
+      widget.driverLat != null && widget.driverLng != null
       ? LatLng(widget.driverLat!, widget.driverLng!)
       : kTripoliCenter;
 
@@ -99,10 +101,10 @@ class _DriverLiveMapWidgetState extends State<DriverLiveMapWidget>
   }
 
   LatLng _pointFor(MapFocusTarget target) => switch (target) {
-        MapFocusTarget.driver => _driverPoint,
-        MapFocusTarget.restaurant => _restaurantPoint ?? _driverPoint,
-        MapFocusTarget.customer => _customerPoint ?? _driverPoint,
-      };
+    MapFocusTarget.driver => _driverPoint,
+    MapFocusTarget.restaurant => _restaurantPoint ?? _driverPoint,
+    MapFocusTarget.customer => _customerPoint ?? _driverPoint,
+  };
 
   void _focusOn(MapFocusTarget target) {
     setState(() => _currentFocus = target);
@@ -112,11 +114,7 @@ class _DriverLiveMapWidgetState extends State<DriverLiveMapWidget>
 
   /// يضبط الإطار ليشمل كل النقاط المتاحة (المندوب والمطعم والزبون).
   void _fitAllPoints() {
-    final points = <LatLng>[
-      _driverPoint,
-      ?_restaurantPoint,
-      ?_customerPoint,
-    ];
+    final points = <LatLng>[_driverPoint, ?_restaurantPoint, ?_customerPoint];
     if (points.length < 2) {
       _mapController.move(_driverPoint, _defaultZoom);
       return;
@@ -167,7 +165,7 @@ class _DriverLiveMapWidgetState extends State<DriverLiveMapWidget>
                   Polyline(
                     points: [_driverPoint, routeEnd],
                     strokeWidth: 4,
-                    color: const Color(0xFF0052FF).withValues(alpha: 0.75),
+                    color: SColors.brand.withValues(alpha: 0.75),
                     borderStrokeWidth: 1,
                     borderColor: Colors.white,
                   ),
@@ -183,7 +181,7 @@ class _DriverLiveMapWidgetState extends State<DriverLiveMapWidget>
                     alignment: Alignment.bottomCenter,
                     child: _DestinationPin(
                       label: widget.activeOrder?.restaurantName ?? 'المطعم',
-                      color: const Color(0xFFEA4335),
+                      color: SColors.googleRed,
                       icon: Icons.storefront_rounded,
                     ),
                   ),
@@ -300,7 +298,7 @@ class _DestinationPin extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.sc.surface,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: color.withValues(alpha: 0.4)),
             boxShadow: [
@@ -316,7 +314,7 @@ class _DestinationPin extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               fontFamily: 'Tajawal',
             ),
@@ -338,7 +336,7 @@ class _DriverBeacon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isOnline ? const Color(0xFF0052FF) : Colors.grey;
+    final color = isOnline ? SColors.brand : Colors.grey;
     return Center(
       child: SizedBox(
         width: 120,
@@ -395,7 +393,7 @@ class _MapControlBtn extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: active ? const Color(0xFF0052FF) : Colors.white,
+        color: active ? SColors.brand : context.sc.surface,
         borderRadius: BorderRadius.circular(10),
         elevation: 3,
         child: InkWell(
@@ -407,7 +405,7 @@ class _MapControlBtn extends StatelessWidget {
             child: Icon(
               icon,
               size: 20,
-              color: active ? Colors.white : const Color(0xFF0F172A),
+              color: active ? Colors.white : context.sc.textPrimary,
             ),
           ),
         ),

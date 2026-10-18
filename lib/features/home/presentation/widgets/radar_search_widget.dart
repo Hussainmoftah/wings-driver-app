@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 
 class RadarSearchWidget extends StatefulWidget {
   const RadarSearchWidget({super.key});
@@ -8,7 +9,8 @@ class RadarSearchWidget extends StatefulWidget {
   State<RadarSearchWidget> createState() => _RadarSearchWidgetState();
 }
 
-class _RadarSearchWidgetState extends State<RadarSearchWidget> with SingleTickerProviderStateMixin {
+class _RadarSearchWidgetState extends State<RadarSearchWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -32,9 +34,9 @@ class _RadarSearchWidgetState extends State<RadarSearchWidget> with SingleTicker
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.sc.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.sc.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -57,7 +59,9 @@ class _RadarSearchWidgetState extends State<RadarSearchWidget> with SingleTicker
                     height: 90 + (_controller.value * 30),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.onlineGreen.withValues(alpha: 0.25 * (1 - _controller.value)),
+                      color: AppColors.onlineGreen.withValues(
+                        alpha: 0.25 * (1 - _controller.value),
+                      ),
                     ),
                   ),
                   Container(
@@ -65,7 +69,9 @@ class _RadarSearchWidgetState extends State<RadarSearchWidget> with SingleTicker
                     height: 70 + (_controller.value * 20),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.onlineGreen.withValues(alpha: 0.35 * (1 - _controller.value)),
+                      color: AppColors.onlineGreen.withValues(
+                        alpha: 0.35 * (1 - _controller.value),
+                      ),
                     ),
                   ),
                   Container(
@@ -94,24 +100,24 @@ class _RadarSearchWidgetState extends State<RadarSearchWidget> with SingleTicker
           ),
           const SizedBox(height: 20),
 
-          const Text(
+          Text(
             'أنت متصل بالشبكة وجاهز للعمل',
             style: TextStyle(
-              color: AppColors.textPrimary,
+              color: context.sc.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              fontFamily: 'Cairo',
+              fontFamily: 'Tajawal',
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'جاري البحث ومطابقة أقرب الطلبات الجاهزة في منطقتك الجغرافية الحالية عبر محرك التوزيع الذكي...',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: context.sc.textSecondary,
               fontSize: 12,
               height: 1.5,
-              fontFamily: 'Cairo',
+              fontFamily: 'Tajawal',
             ),
           ),
         ],

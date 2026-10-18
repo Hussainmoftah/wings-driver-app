@@ -1,4 +1,3 @@
-
 class ApiConstants {
   ApiConstants._();
 
@@ -14,6 +13,8 @@ class ApiConstants {
 
   // Auth endpoints
   static const String login = '/login';
+  static const String refreshToken = '/auth/refresh';
+  static const String logout = '/logout';
 
   // Driver Profile & Shift Status
   static const String driverProfile = '/driver/profile';
@@ -23,5 +24,6 @@ class ApiConstants {
   // Driver Orders & Delivery Lifecycle (Driver-Scoped)
   static const String driverActiveOrders = '/driver/orders/active';
   static String driverOrderDetails(int orderId) => '/driver/orders/$orderId';
-  static String updateOrderStatus(int orderId) => '/driver/orders/$orderId/status';
+  static String updateOrderStatus(int orderId) =>
+      '/driver/orders/$orderId/status';
 }

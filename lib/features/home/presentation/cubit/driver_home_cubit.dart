@@ -36,12 +36,12 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
     AuthRepository? authRepository,
     LocationRepository? locationRepository,
     DeviceLocationService? locationService,
-  })  : _profileRepository = profileRepository ?? ProfileRepositoryImpl(),
-        _ordersRepository = ordersRepository ?? OrdersRepositoryImpl(),
-        _authRepository = authRepository ?? AuthRepositoryImpl(),
-        _locationRepository = locationRepository ?? LocationRepositoryImpl(),
-        _locationService = locationService ?? DeviceLocationService(),
-        super(const DriverHomeState());
+  }) : _profileRepository = profileRepository ?? ProfileRepositoryImpl(),
+       _ordersRepository = ordersRepository ?? OrdersRepositoryImpl(),
+       _authRepository = authRepository ?? AuthRepositoryImpl(),
+       _locationRepository = locationRepository ?? LocationRepositoryImpl(),
+       _locationService = locationService ?? DeviceLocationService(),
+       super(const DriverHomeState());
 
   Future<void> loadHomeData() async {
     emit(state.copyWith(status: DriverHomeStatus.loading));
@@ -58,11 +58,15 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
   Future<void> _fetchData({bool fetchFullFinancials = true}) async {
     try {
       final profileFuture = _profileRepository.getProfile();
-      final activeOrdersFuture = _ordersRepository.getActiveOrders().catchError((e) {
-        debugPrint('⚠️ [Driver Active Orders Fetch] Failed: $e');
-        return <DriverOrderModel>[];
-      });
-      final notifFuture = DriverNotificationService().getUnreadCount().catchError((_) => 0);
+      final activeOrdersFuture = _ordersRepository.getActiveOrders().catchError(
+        (e) {
+          debugPrint('⚠️ [Driver Active Orders Fetch] Failed: $e');
+          return <DriverOrderModel>[];
+        },
+      );
+      final notifFuture = DriverNotificationService()
+          .getUnreadCount()
+          .catchError((_) => 0);
       final finFuture = fetchFullFinancials
           ? () async {
               try {
@@ -94,38 +98,57 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
       double deposit = state.depositAmount;
       double capacity = state.remainingDepositCapacity;
 
-      if (finResp != null && finResp.statusCode == 200 && finResp.data != null && finResp.data['data'] != null) {
+      if (finResp != null &&
+          finResp.statusCode == 200 &&
+          finResp.data != null &&
+          finResp.data['data'] != null) {
         final finData = finResp.data['data'];
-        final earningsObj = finData['earnings'] is Map ? finData['earnings'] : null;
-        final custodyObj = finData['collateral_and_custody'] is Map ? finData['collateral_and_custody'] : null;
+        final earningsObj = finData['earnings'] is Map
+            ? finData['earnings']
+            : null;
+        final custodyObj = finData['collateral_and_custody'] is Map
+            ? finData['collateral_and_custody']
+            : null;
 
-        earnings = (earningsObj?['total_delivery_earnings'] as num?)?.toDouble() 
-            ?? (finData['delivery_earnings'] as num?)?.toDouble() ?? 0.0;
-        completedTrips = (earningsObj?['today_completed_trips'] as num?)?.toInt() 
-            ?? (finData['completed_trips_count'] as num?)?.toInt() ?? 0;
-        cod = (custodyObj?['current_cash_custody'] as num?)?.toDouble() 
-            ?? (finData['cod_custody'] as num?)?.toDouble() ?? 0.0;
-        deposit = (custodyObj?['deposit_amount'] as num?)?.toDouble() 
-            ?? (finData['deposit_amount'] as num?)?.toDouble() ?? 0.0;
-        capacity = (custodyObj?['remaining_capacity'] as num?)?.toDouble() 
-            ?? (finData['remaining_deposit_capacity'] as num?)?.toDouble() ?? 0.0;
+        earnings =
+            (earningsObj?['total_delivery_earnings'] as num?)?.toDouble() ??
+            (finData['delivery_earnings'] as num?)?.toDouble() ??
+            0.0;
+        completedTrips =
+            (earningsObj?['today_completed_trips'] as num?)?.toInt() ??
+            (finData['completed_trips_count'] as num?)?.toInt() ??
+            0;
+        cod =
+            (custodyObj?['current_cash_custody'] as num?)?.toDouble() ??
+            (finData['cod_custody'] as num?)?.toDouble() ??
+            0.0;
+        deposit =
+            (custodyObj?['deposit_amount'] as num?)?.toDouble() ??
+            (finData['deposit_amount'] as num?)?.toDouble() ??
+            0.0;
+        capacity =
+            (custodyObj?['remaining_capacity'] as num?)?.toDouble() ??
+            (finData['remaining_deposit_capacity'] as num?)?.toDouble() ??
+            0.0;
       }
 
-      emit(state.copyWith(
-        status: DriverHomeStatus.loaded,
-        profile: profile,
-        activeOrder: activeOrder,
-        clearActiveOrder: activeOrder == null,
-        todayEarnings: earnings,
-        completedOrdersCount: completedTrips,
-        codCustody: cod,
-        depositAmount: deposit,
-        remainingDepositCapacity: capacity,
-        shiftHours: 0.0,
-        acceptanceRate: 100.0,
-        unreadNotificationsCount: unreadNotifications,
-        errorMessage: null,
-      ));
+      emit(
+        state.copyWith(
+          status: DriverHomeStatus.loaded,
+          profile: profile,
+          activeOrder: activeOrder,
+          clearActiveOrder: activeOrder == null,
+          todayEarnings: earnings,
+          completedOrdersCount: completedTrips,
+          codCustody: cod,
+          depositAmount: deposit,
+          remainingDepositCapacity: capacity,
+          shiftHours: 0.0,
+          acceptanceRate: 100.0,
+          unreadNotificationsCount: unreadNotifications,
+          errorMessage: null,
+        ),
+      );
 
       if (profile.isOnline) {
         _startPolling();
@@ -138,31 +161,38 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
       debugPrint('🔒 [Driver Session] 401 Unauthorized - Session expired.');
       _pollTimer?.cancel();
       await _authRepository.logout();
-      emit(state.copyWith(
-        status: DriverHomeStatus.unauthenticated,
-        errorMessage: 'انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول.',
-      ));
+      emit(
+        state.copyWith(
+          status: DriverHomeStatus.unauthenticated,
+          errorMessage: 'انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول.',
+        ),
+      );
     } on ForbiddenException catch (e) {
       debugPrint('⛔ [Driver Session] 403 Forbidden - ${e.message}');
-      emit(state.copyWith(
-        status: DriverHomeStatus.error,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(status: DriverHomeStatus.error, errorMessage: e.message),
+      );
     } on ServerException catch (e) {
       debugPrint('⚠️ [Driver Session] Server error: ${e.message}');
-      emit(state.copyWith(
-        errorMessage: 'خطأ في خادم وينجز، جاري إعادة المحاولة...',
-      ));
+      emit(
+        state.copyWith(
+          errorMessage: 'خطأ في خادم سديم، جاري إعادة المحاولة...',
+        ),
+      );
     } on NetworkException {
       debugPrint('⚠️ [Driver Home Cubit] Network/Connection Error');
-      emit(state.copyWith(
-        errorMessage: 'تعذر الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت.',
-      ));
+      emit(
+        state.copyWith(
+          errorMessage: 'تعذر الاتصال بالخادم، يرجى التحقق من اتصال الإنترنت.',
+        ),
+      );
     } catch (e) {
       debugPrint('⚠️ [Driver Home Cubit] Unexpected error: $e');
-      emit(state.copyWith(
-        errorMessage: 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.',
-      ));
+      emit(
+        state.copyWith(
+          errorMessage: 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.',
+        ),
+      );
     }
   }
 
@@ -187,17 +217,18 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
     emit(state.copyWith(isUpdatingStatus: true));
 
     try {
-      final updatedProfile = await _profileRepository.updateDutyStatus(isOnline);
-      final mergedProfile = state.profile?.copyWith(
-        isOnline: updatedProfile.isOnline,
-        operationalStatus: updatedProfile.operationalStatus,
-        statusLabel: updatedProfile.statusLabel,
-      ) ?? updatedProfile;
+      final updatedProfile = await _profileRepository.updateDutyStatus(
+        isOnline,
+      );
+      final mergedProfile =
+          state.profile?.copyWith(
+            isOnline: updatedProfile.isOnline,
+            operationalStatus: updatedProfile.operationalStatus,
+            statusLabel: updatedProfile.statusLabel,
+          ) ??
+          updatedProfile;
 
-      emit(state.copyWith(
-        profile: mergedProfile,
-        isUpdatingStatus: false,
-      ));
+      emit(state.copyWith(profile: mergedProfile, isUpdatingStatus: false));
 
       if (isOnline) {
         _startPolling();
@@ -213,10 +244,7 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
         statusLabel: isOnline ? 'متصل ومتاح' : 'غير متصل',
       );
 
-      emit(state.copyWith(
-        profile: fallbackProfile,
-        isUpdatingStatus: false,
-      ));
+      emit(state.copyWith(profile: fallbackProfile, isUpdatingStatus: false));
 
       if (isOnline) {
         _startPolling();
@@ -260,11 +288,13 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
   }
 
   void _emitPosition(Position position, {bool sendToServer = true}) {
-    emit(state.copyWith(
-      driverLat: position.latitude,
-      driverLng: position.longitude,
-      driverHeading: position.heading,
-    ));
+    emit(
+      state.copyWith(
+        driverLat: position.latitude,
+        driverLng: position.longitude,
+        driverHeading: position.heading,
+      ),
+    );
 
     if (!sendToServer) return;
 
@@ -275,12 +305,14 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
     }
     _lastTelemetryAt = now;
 
-    unawaited(updateLocation(
-      position.latitude,
-      position.longitude,
-      heading: position.heading,
-      accuracy: position.accuracy,
-    ));
+    unawaited(
+      updateLocation(
+        position.latitude,
+        position.longitude,
+        heading: position.heading,
+        accuracy: position.accuracy,
+      ),
+    );
   }
 
   Future<void> updateLocation(
@@ -312,18 +344,23 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
         newStatus,
         reason: 'تحديث مسار التوصيل من تطبيق السائق',
       );
-      debugPrint('✅ [Driver Status Update] Successfully updated order $orderId to $newStatus');
+      debugPrint(
+        '✅ [Driver Status Update] Successfully updated order $orderId to $newStatus',
+      );
     } catch (e) {
       debugPrint('⚠️ [Driver Status Update] Error: $e');
     }
 
     if (newStatus == 'delivered' || newStatus == 'completed') {
-      emit(state.copyWith(
-        clearActiveOrder: true,
-        todayEarnings: state.todayEarnings + (state.activeOrder?.deliveryFee ?? 10.0),
-        completedOrdersCount: state.completedOrdersCount + 1,
-        isUpdatingStatus: false,
-      ));
+      emit(
+        state.copyWith(
+          clearActiveOrder: true,
+          todayEarnings:
+              state.todayEarnings + (state.activeOrder?.deliveryFee ?? 10.0),
+          completedOrdersCount: state.completedOrdersCount + 1,
+          isUpdatingStatus: false,
+        ),
+      );
       await _fetchData();
     } else {
       final updatedOrder = DriverOrderModel(
@@ -347,10 +384,7 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
         createdAt: state.activeOrder?.createdAt,
       );
 
-      emit(state.copyWith(
-        activeOrder: updatedOrder,
-        isUpdatingStatus: false,
-      ));
+      emit(state.copyWith(activeOrder: updatedOrder, isUpdatingStatus: false));
     }
   }
 

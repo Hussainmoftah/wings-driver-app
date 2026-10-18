@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/errors/exceptions.dart';
+import '../../../../core/network/api_constants.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
@@ -8,7 +9,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
 
   AuthRepositoryImpl({AuthRemoteDataSource? remoteDataSource})
-      : _remoteDataSource = remoteDataSource ?? AuthRemoteDataSourceImpl();
+    : _remoteDataSource = remoteDataSource ?? AuthRemoteDataSourceImpl();
 
   @override
   Future<Map<String, dynamic>> login(String email, String password) async {
@@ -19,15 +20,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (role != null && role != 'driver') {
       throw const ForbiddenException(
-        message: 'هذا الحساب ليس لديه صلاحية كابتن توصيل (Driver). يرجى استخدام حساب كابتن معتمد.',
+        message:
+            'هذا الحساب ليس لديه صلاحية كابتن توصيل (Driver). يرجى استخدام حساب كابتن معتمد.',
       );
     }
 
     final token = data['token'] as String?;
     if (token != null && token.isNotEmpty) {
-      DioClient.setToken(token);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
+      await DioClient.saveSession(token, data['refresh_token'] as String?);
     }
 
     return data;
@@ -35,9 +35,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    DioClient.clearToken();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
+    // إلغاء الجلسة في الخادم (الوصول + التجديد)، ثم محلياً حتى لو فشل الاتصال
+    try {
+      if (await hasValidToken()) {
+        await DioClient().dio.post(ApiConstants.logout);
+      }
+    } catch (_) {}
+    await DioClient.clearSession();
   }
 
   @override

@@ -74,8 +74,10 @@ class DriverHomeState extends Equatable {
       acceptanceRate: acceptanceRate ?? this.acceptanceRate,
       codCustody: codCustody ?? this.codCustody,
       depositAmount: depositAmount ?? this.depositAmount,
-      remainingDepositCapacity: remainingDepositCapacity ?? this.remainingDepositCapacity,
-      unreadNotificationsCount: unreadNotificationsCount ?? this.unreadNotificationsCount,
+      remainingDepositCapacity:
+          remainingDepositCapacity ?? this.remainingDepositCapacity,
+      unreadNotificationsCount:
+          unreadNotificationsCount ?? this.unreadNotificationsCount,
       errorMessage: errorMessage,
       isUpdatingStatus: isUpdatingStatus ?? this.isUpdatingStatus,
       driverLat: driverLat ?? this.driverLat,
@@ -86,21 +88,21 @@ class DriverHomeState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        profile,
-        activeOrder,
-        todayEarnings,
-        completedOrdersCount,
-        shiftHours,
-        acceptanceRate,
-        codCustody,
-        depositAmount,
-        remainingDepositCapacity,
-        unreadNotificationsCount,
-        errorMessage,
-        isUpdatingStatus,
-        driverLat,
-        driverLng,
-        driverHeading,
-      ];
+    status,
+    profile,
+    activeOrder,
+    todayEarnings,
+    completedOrdersCount,
+    shiftHours,
+    acceptanceRate,
+    codCustody,
+    depositAmount,
+    remainingDepositCapacity,
+    unreadNotificationsCount,
+    errorMessage,
+    isUpdatingStatus,
+    driverLat,
+    driverLng,
+    driverHeading,
+  ];
 }

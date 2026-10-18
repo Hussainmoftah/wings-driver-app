@@ -40,11 +40,20 @@ class DriverOrderStopModel {
     }
 
     return DriverOrderStopModel(
-      id: json['id'] is num ? (json['id'] as num).toInt() : (int.tryParse(json['id']?.toString() ?? '0') ?? 0),
-      stopSequence: json['stop_sequence'] is num ? (json['stop_sequence'] as num).toInt() : (int.tryParse(json['stop_sequence']?.toString() ?? '1') ?? 1),
+      id: json['id'] is num
+          ? (json['id'] as num).toInt()
+          : (int.tryParse(json['id']?.toString() ?? '0') ?? 0),
+      stopSequence: json['stop_sequence'] is num
+          ? (json['stop_sequence'] as num).toInt()
+          : (int.tryParse(json['stop_sequence']?.toString() ?? '1') ?? 1),
       status: json['status']?.toString() ?? 'pending',
-      restaurantId: rest != null && rest['id'] != null ? (rest['id'] is num ? (rest['id'] as num).toInt() : int.tryParse(rest['id'].toString())) : null,
-      restaurantName: rest?['name']?.toString() ?? json['restaurant_name']?.toString(),
+      restaurantId: rest != null && rest['id'] != null
+          ? (rest['id'] is num
+                ? (rest['id'] as num).toInt()
+                : int.tryParse(rest['id'].toString()))
+          : null,
+      restaurantName:
+          rest?['name']?.toString() ?? json['restaurant_name']?.toString(),
       restaurantPhone: rest?['phone']?.toString(),
       restaurantAddress: resolvedAddress,
       restaurantLat: parseOptionalNum(rest?['latitude']),
@@ -113,14 +122,16 @@ class DriverOrderModel {
   factory DriverOrderModel.fromJson(Map<String, dynamic> json) {
     final customer = json['customer'] as Map<String, dynamic>?;
     final restaurant = json['restaurant'] as Map<String, dynamic>?;
-    final address = (json['delivery_address'] ?? json['address']) as Map<String, dynamic>?;
+    final address =
+        (json['delivery_address'] ?? json['address']) as Map<String, dynamic>?;
 
     final rawItems = json['items'] as List<dynamic>? ?? [];
     final parsedItems = rawItems
         .map((i) => DriverOrderItemModel.fromJson(i as Map<String, dynamic>))
         .toList();
 
-    final rawStops = (json['stops'] ?? json['order_stops']) as List<dynamic>? ?? [];
+    final rawStops =
+        (json['stops'] ?? json['order_stops']) as List<dynamic>? ?? [];
     final parsedStops = rawStops
         .map((s) => DriverOrderStopModel.fromJson(s as Map<String, dynamic>))
         .toList();
@@ -144,10 +155,13 @@ class DriverOrderModel {
         address['title'],
         address['street'],
         address['city'],
-        if (address['building_number'] != null) 'مبنى ${address['building_number']}',
+        if (address['building_number'] != null)
+          'مبنى ${address['building_number']}',
         if (address['floor'] != null) 'طابق ${address['floor']}',
       ].where((p) => p != null && p.toString().trim().isNotEmpty).toList();
-      resolvedCustomerAddress = parts.isNotEmpty ? parts.join(' - ') : address['address'];
+      resolvedCustomerAddress = parts.isNotEmpty
+          ? parts.join(' - ')
+          : address['address'];
     } else if (customer != null && customer['address'] != null) {
       resolvedCustomerAddress = customer['address'].toString();
     }
@@ -158,20 +172,30 @@ class DriverOrderModel {
         restaurant['street'],
         restaurant['city'],
       ].where((p) => p != null && p.toString().trim().isNotEmpty).toList();
-      resolvedRestaurantAddress = parts.isNotEmpty ? parts.join(' - ') : restaurant['address'];
+      resolvedRestaurantAddress = parts.isNotEmpty
+          ? parts.join(' - ')
+          : restaurant['address'];
     }
 
-    final isMulti = json['is_multi_restaurant'] == true ||
+    final isMulti =
+        json['is_multi_restaurant'] == true ||
         json['is_multi_restaurant'] == 1 ||
         json['parent_order_id'] != null ||
         parsedStops.length > 1;
 
-    final idVal = json['id'] is num ? (json['id'] as num).toInt() : (int.tryParse(json['id']?.toString() ?? '0') ?? 0);
-    final parentId = json['parent_order_id'] is num ? (json['parent_order_id'] as num).toInt() : int.tryParse(json['parent_order_id']?.toString() ?? '');
+    final idVal = json['id'] is num
+        ? (json['id'] as num).toInt()
+        : (int.tryParse(json['id']?.toString() ?? '0') ?? 0);
+    final parentId = json['parent_order_id'] is num
+        ? (json['parent_order_id'] as num).toInt()
+        : int.tryParse(json['parent_order_id']?.toString() ?? '');
     final displayId = json['display_order_id'] is num
         ? (json['display_order_id'] as num).toInt()
-        : int.tryParse(json['display_order_id']?.toString() ?? '') ?? parentId ?? idVal;
-    final resolvedOrderNumber = json['order_number']?.toString() ?? '#WNG-$displayId';
+        : int.tryParse(json['display_order_id']?.toString() ?? '') ??
+              parentId ??
+              idVal;
+    final resolvedOrderNumber =
+        json['order_number']?.toString() ?? '#WNG-$displayId';
 
     return DriverOrderModel(
       id: idVal,
@@ -186,8 +210,12 @@ class DriverOrderModel {
       customerName: customer?['name'],
       customerPhone: customer?['phone'],
       customerAddress: resolvedCustomerAddress,
-      customerLat: parseOptionalNum(address?['latitude'] ?? customer?['latitude']),
-      customerLng: parseOptionalNum(address?['longitude'] ?? customer?['longitude']),
+      customerLat: parseOptionalNum(
+        address?['latitude'] ?? customer?['latitude'],
+      ),
+      customerLng: parseOptionalNum(
+        address?['longitude'] ?? customer?['longitude'],
+      ),
       restaurantName: restaurant?['name'],
       restaurantPhone: restaurant?['phone'],
       restaurantAddress: resolvedRestaurantAddress,
@@ -195,7 +223,9 @@ class DriverOrderModel {
       restaurantLat: parseOptionalNum(restaurant?['latitude']),
       restaurantLng: parseOptionalNum(restaurant?['longitude']),
       isMultiRestaurant: isMulti,
-      pickupSequence: json['pickup_sequence'] is num ? (json['pickup_sequence'] as num).toInt() : int.tryParse(json['pickup_sequence']?.toString() ?? ''),
+      pickupSequence: json['pickup_sequence'] is num
+          ? (json['pickup_sequence'] as num).toInt()
+          : int.tryParse(json['pickup_sequence']?.toString() ?? ''),
       verificationStatus: json['verification_status']?.toString(),
       stops: parsedStops,
       items: parsedItems,
@@ -231,14 +261,21 @@ class DriverOrderItemModel {
     }
 
     return DriverOrderItemModel(
-      id: json['id'] is num ? (json['id'] as num).toInt() : (int.tryParse(json['id']?.toString() ?? '0') ?? 0),
-      productId: json['product_id'] != null ? (json['product_id'] as num).toInt() : null,
+      id: json['id'] is num
+          ? (json['id'] as num).toInt()
+          : (int.tryParse(json['id']?.toString() ?? '0') ?? 0),
+      productId: json['product_id'] != null
+          ? (json['product_id'] as num).toInt()
+          : null,
       productName: json['product_name'] ?? json['name'] ?? 'وجبة',
-      quantity: json['quantity'] is num ? (json['quantity'] as num).toInt() : (int.tryParse(json['quantity']?.toString() ?? '1') ?? 1),
+      quantity: json['quantity'] is num
+          ? (json['quantity'] as num).toInt()
+          : (int.tryParse(json['quantity']?.toString() ?? '1') ?? 1),
       unitPrice: parseNum(json['unit_price'] ?? json['unit_price_snapshot']),
-      totalPrice: parseNum(json['subtotal'] ?? json['total_price'] ?? json['subtotal_snapshot']),
+      totalPrice: parseNum(
+        json['subtotal'] ?? json['total_price'] ?? json['subtotal_snapshot'],
+      ),
       notes: json['notes'],
     );
   }
 }
-

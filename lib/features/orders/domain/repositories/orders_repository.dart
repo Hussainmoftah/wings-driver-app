@@ -8,5 +8,9 @@ abstract class OrdersRepository {
   Future<DriverOrderModel> getOrderDetails(int orderId);
 
   /// تحديث حالة مسار التوصيل (on_the_way / delivered)
-  Future<void> updateOrderStatus(int orderId, String newStatus, {String? reason});
+  Future<void> updateOrderStatus(
+    int orderId,
+    String newStatus, {
+    String? reason,
+  });
 }

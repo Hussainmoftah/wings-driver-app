@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 
 class TodaySummaryCards extends StatelessWidget {
   final double todayEarnings;
@@ -25,13 +26,13 @@ class TodaySummaryCards extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'ملخص إنجاز اليوم',
                 style: TextStyle(
-                  color: AppColors.textPrimary,
+                  color: context.sc.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'Cairo',
+                  fontFamily: 'Tajawal',
                 ),
               ),
               Text(
@@ -40,7 +41,7 @@ class TodaySummaryCards extends StatelessWidget {
                   color: AppColors.primary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  fontFamily: 'Cairo',
+                  fontFamily: 'Tajawal',
                 ),
               ),
             ],
@@ -51,6 +52,7 @@ class TodaySummaryCards extends StatelessWidget {
               // 1. أرباح اليوم (Today's Earnings)
               Expanded(
                 child: _buildMetricCard(
+                  context: context,
                   title: 'أرباح اليوم',
                   value: '${todayEarnings.toStringAsFixed(2)} د.ل',
                   icon: Icons.account_balance_wallet_rounded,
@@ -64,6 +66,7 @@ class TodaySummaryCards extends StatelessWidget {
               // 2. الرحلات المكتملة (Completed Trips)
               Expanded(
                 child: _buildMetricCard(
+                  context: context,
                   title: 'الطلبات المنجزة',
                   value: '$completedOrdersCount طلبات',
                   icon: Icons.check_circle_rounded,
@@ -80,6 +83,7 @@ class TodaySummaryCards extends StatelessWidget {
               // 3. ساعات الوردية (Shift Hours)
               Expanded(
                 child: _buildMetricCard(
+                  context: context,
                   title: 'ساعات العمل',
                   value: '${shiftHours.toStringAsFixed(1)} ساعة',
                   icon: Icons.timer_rounded,
@@ -93,11 +97,12 @@ class TodaySummaryCards extends StatelessWidget {
               // 4. نسبة القبول (Acceptance Rate)
               Expanded(
                 child: _buildMetricCard(
+                  context: context,
                   title: 'نسبة القبول',
                   value: '${acceptanceRate.toStringAsFixed(1)}%',
                   icon: Icons.thumb_up_alt_rounded,
                   iconColor: AppColors.purple,
-                  bgColor: const Color(0xFFF3E8FF),
+                  bgColor: SColors.purple100,
                   subtext: 'تقييم كابتن مميز ⭐',
                 ),
               ),
@@ -109,6 +114,7 @@ class TodaySummaryCards extends StatelessWidget {
   }
 
   Widget _buildMetricCard({
+    required BuildContext context,
     required String title,
     required String value,
     required IconData icon,
@@ -119,9 +125,9 @@ class TodaySummaryCards extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.sc.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1),
+        border: Border.all(color: context.sc.border, width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -138,10 +144,10 @@ class TodaySummaryCards extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: context.sc.textSecondary,
                   fontSize: 12,
-                  fontFamily: 'Cairo',
+                  fontFamily: 'Tajawal',
                 ),
               ),
               Container(
@@ -157,11 +163,11 @@ class TodaySummaryCards extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
+            style: TextStyle(
+              color: context.sc.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              fontFamily: 'Cairo',
+              fontFamily: 'Tajawal',
             ),
           ),
           const SizedBox(height: 4),
@@ -169,9 +175,9 @@ class TodaySummaryCards extends StatelessWidget {
             subtext,
             style: TextStyle(
               color: iconColor,
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
-              fontFamily: 'Cairo',
+              fontFamily: 'Tajawal',
             ),
           ),
         ],

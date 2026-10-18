@@ -1,28 +1,33 @@
 {
     "status": "running",
-    "start_time": "2026-09-24 18:11:06",
-    "current_time": "2026-09-24 18:42:44",
-    "elapsed_seconds": 1897.5,
-    "total_duration_seconds": 1800,
-    "target_orders": 1000,
-    "orders_placed": 1000,
-    "orders_completed": 999,
-    "orders_in_flight": 1,
+    "start_time": "2026-09-26 13:24:00",
+    "current_time": "2026-09-26 14:53:07",
+    "elapsed_seconds": 5342.6,
+    "total_duration_seconds": 2700,
+    "ingest_duration_seconds": 1200,
+    "target_orders": 500,
+    "orders_placed": 500,
+    "orders_completed": 458,
+    "orders_single": 348,
+    "orders_multi_combined": 152,
+    "orders_no_driver_cancelled": 42,
+    "orders_reordered": 32,
+    "orders_in_flight": 0,
     "active_breakdown": {
         "pending": 0,
         "preparing": 0,
         "ready_for_pickup": 0,
-        "on_the_way": 1
+        "on_the_way": 0
     },
     "financials": {
-        "gmv": 63400.05,
-        "food_sales": 54390.05,
-        "delivery_fees": 9010,
-        "cash_collected": 38986.2,
-        "online_sales": 24413.85,
-        "driver_earnings": 7208,
-        "platform_margin": 1802
+        "gmv": 45955.75,
+        "food_sales": 42007.75,
+        "delivery_fees": 3948,
+        "cash_collected": 30210,
+        "online_sales": 15745.75,
+        "driver_earnings": 3158.4,
+        "platform_margin": 789.6
     },
     "progress_percent": 100,
-    "completion_percent": 99.9
+    "completion_percent": 91.6
 }

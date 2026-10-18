@@ -12,14 +12,12 @@ import '../widgets/driver_live_map_widget.dart';
 import '../widgets/offline_duty_banner.dart';
 import '../widgets/radar_search_widget.dart';
 import '../widgets/today_summary_cards.dart';
+import 'package:sadeem_ui/sadeem_ui.dart';
 
 class DriverHomeScreen extends StatefulWidget {
   final AuthRepository? authRepository;
 
-  const DriverHomeScreen({
-    super.key,
-    this.authRepository,
-  });
+  const DriverHomeScreen({super.key, this.authRepository});
 
   @override
   State<DriverHomeScreen> createState() => _DriverHomeScreenState();
@@ -47,7 +45,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
                 builder: (_) => DriverLoginScreen(
-                  initialErrorMessage: state.errorMessage ?? 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.',
+                  initialErrorMessage:
+                      state.errorMessage ??
+                      'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.',
                 ),
               ),
               (route) => false,
@@ -55,7 +55,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           }
         },
         builder: (context, state) {
-          if (state.status == DriverHomeStatus.loading && state.profile == null) {
+          if (state.status == DriverHomeStatus.loading &&
+              state.profile == null) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             );
@@ -83,8 +84,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: const Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
+          color: context.sc.surface,
+          border: Border(
+            top: BorderSide(color: context.sc.border, width: 1),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -97,10 +100,17 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           currentIndex: _currentTabIndex,
           onTap: (index) => setState(() => _currentTabIndex = index),
           backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF1A73E8), // Google Blue
-          unselectedItemColor: const Color(0xFF94A3B8),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Cairo', fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontFamily: 'Cairo', fontSize: 11),
+          selectedItemColor: SColors.googleBlue, // Google Blue
+          unselectedItemColor: SColors.slate400,
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Tajawal',
+            fontSize: 12,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontFamily: 'Tajawal',
+            fontSize: 12,
+          ),
           type: BottomNavigationBarType.fixed,
           elevation: 0,
           items: const [
@@ -126,7 +136,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
     );
   }
 
-  Widget _buildHomeGoogleMapTab(BuildContext context, DriverHomeState state, bool isOnline) {
+  Widget _buildHomeGoogleMapTab(
+    BuildContext context,
+    DriverHomeState state,
+    bool isOnline,
+  ) {
     final bool hasActiveOrder = isOnline && state.activeOrder != null;
 
     return Stack(
@@ -164,11 +178,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           minChildSize: 0.12,
           maxChildSize: 0.85,
           snap: true,
-          snapSizes: hasActiveOrder ? const [0.12, 0.25, 0.85] : const [0.12, 0.24, 0.80],
+          snapSizes: hasActiveOrder
+              ? const [0.12, 0.25, 0.85]
+              : const [0.12, 0.24, 0.80],
           builder: (context, scrollController) {
             return Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.sc.surface,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
@@ -194,7 +210,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         width: 40,
                         height: 4.5,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFCBD5E1),
+                          color: SColors.slate300,
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -209,7 +225,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           if (newStatus == 'on_the_way') {
                             setState(() => _mapFocus = MapFocusTarget.customer);
                           }
-                          context.read<DriverHomeCubit>().updateOrderStatus(newStatus, orderId);
+                          context.read<DriverHomeCubit>().updateOrderStatus(
+                            newStatus,
+                            orderId,
+                          );
                         },
                         onFocusRestaurantOnMap: () {
                           setState(() => _mapFocus = MapFocusTarget.restaurant);
@@ -222,7 +241,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       const RadarSearchWidget(),
                     ] else ...[
                       OfflineDutyBanner(
-                        onGoOnline: () => context.read<DriverHomeCubit>().toggleDuty(true),
+                        onGoOnline: () =>
+                            context.read<DriverHomeCubit>().toggleDuty(true),
                       ),
                     ],
 
@@ -243,40 +263,44 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 16),
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: context.sc.page,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: context.sc.border),
                       ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE0E7FF),
+                              color: SColors.indigo100,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(Icons.headset_mic_rounded, color: Color(0xFF4F46E5), size: 22),
+                            child: const Icon(
+                              Icons.headset_mic_rounded,
+                              color: SColors.indigo600,
+                              size: 22,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   'مشرف العمليات والدعم',
                                   style: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: context.sc.textPrimary,
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: 'Cairo',
+                                    fontFamily: 'Tajawal',
                                   ),
                                 ),
                                 Text(
                                   'تواصل فوراً لأي مساعدة في التوصيل',
                                   style: TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 11,
-                                    fontFamily: 'Cairo',
+                                    color: context.sc.textSecondary,
+                                    fontSize: 12,
+                                    fontFamily: 'Tajawal',
                                   ),
                                 ),
                               ],
@@ -285,11 +309,21 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           ElevatedButton(
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1A73E8),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              backgroundColor: SColors.googleBlue,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               minimumSize: const Size(60, 34),
                             ),
-                            child: const Text('اتصال', style: TextStyle(fontSize: 11, fontFamily: 'Cairo', color: Colors.white)),
+                            child: const Text(
+                              'اتصال',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Tajawal',
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -313,7 +347,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: SColors.slate800,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -329,7 +363,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isRestaurant ? const Color(0xFF1A73E8) : const Color(0xFF10B981),
+              color: isRestaurant ? SColors.googleBlue : SColors.emerald500,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -354,34 +388,39 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         color: Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Cairo',
+                        fontFamily: 'Tajawal',
                       ),
                     ),
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 1,
+                      ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.25),
+                        color: SColors.emerald500.withValues(alpha: 0.25),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
                         'أسرع مسار',
                         style: TextStyle(
-                          color: Color(0xFF34D399),
-                          fontSize: 9,
+                          color: SColors.emerald400,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
+                          fontFamily: 'Tajawal',
                         ),
                       ),
                     ),
                   ],
                 ),
                 Text(
-                  isRestaurant ? 'نحو مطعم أجنحة ليبيا • طريق الشط' : 'نحو الزبون: طارق الزنتاني • حي الأندلس',
+                  isRestaurant
+                      ? 'نحو مطعم أجنحة ليبيا • طريق الشط'
+                      : 'نحو الزبون: طارق الزنتاني • حي الأندلس',
                   style: const TextStyle(
-                    color: Color(0xFF94A3B8),
-                    fontSize: 11,
-                    fontFamily: 'Cairo',
+                    color: SColors.slate400,
+                    fontSize: 12,
+                    fontFamily: 'Tajawal',
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -393,7 +432,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           // Target Switcher Pill (المطعم / الزبون)
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
+              color: SColors.slate900,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -403,15 +442,17 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                   title: 'المطعم',
                   icon: Icons.storefront_rounded,
                   isSelected: isRestaurant,
-                  color: const Color(0xFF1A73E8),
-                  onTap: () => setState(() => _mapFocus = MapFocusTarget.restaurant),
+                  color: SColors.googleBlue,
+                  onTap: () =>
+                      setState(() => _mapFocus = MapFocusTarget.restaurant),
                 ),
                 _buildCompactTargetBtn(
                   title: 'الزبون',
                   icon: Icons.person_pin_circle_rounded,
                   isSelected: !isRestaurant,
-                  color: const Color(0xFF10B981),
-                  onTap: () => setState(() => _mapFocus = MapFocusTarget.customer),
+                  color: SColors.emerald500,
+                  onTap: () =>
+                      setState(() => _mapFocus = MapFocusTarget.customer),
                 ),
               ],
             ),
@@ -439,15 +480,19 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: isSelected ? Colors.white : const Color(0xFF64748B), size: 14),
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : SColors.slate500,
+              size: 14,
+            ),
             const SizedBox(width: 4),
             Text(
               title,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF64748B),
-                fontSize: 10,
+                color: isSelected ? Colors.white : SColors.slate500,
+                fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                fontFamily: 'Cairo',
+                fontFamily: 'Tajawal',
               ),
             ),
           ],
@@ -457,12 +502,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   }
 
   // Idle Floating Top Bar
-  Widget _buildIdleDutyTopBar(BuildContext context, DriverHomeState state, bool isOnline) {
+  Widget _buildIdleDutyTopBar(
+    BuildContext context,
+    DriverHomeState state,
+    bool isOnline,
+  ) {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.sc.surface,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -479,14 +528,14 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: const Color(0xFFE2E8F0),
+              color: context.sc.surfaceSunken,
               shape: BoxShape.circle,
               border: Border.all(
-                color: isOnline ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                color: isOnline ? SColors.emerald500 : SColors.red500,
                 width: 2,
               ),
             ),
-            child: const Icon(Icons.person, color: Color(0xFF475569), size: 22),
+            child: Icon(Icons.person, color: context.sc.textBody, size: 22),
           ),
           const SizedBox(width: 10),
 
@@ -498,20 +547,22 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               children: [
                 Text(
                   state.profile?.name ?? 'الكابتن',
-                  style: const TextStyle(
-                    color: Color(0xFF1E293B),
+                  style: TextStyle(
+                    color: context.sc.textHeading,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Cairo',
+                    fontFamily: 'Tajawal',
                   ),
                 ),
                 Text(
-                  isOnline ? '🟢 متصل • جاهز لاستقبال أقرب الطلبات' : '🔴 غير متصل بالشبكة',
+                  isOnline
+                      ? '🟢 متصل • جاهز لاستقبال أقرب الطلبات'
+                      : '🔴 غير متصل بالشبكة',
                   style: TextStyle(
-                    color: isOnline ? const Color(0xFF059669) : const Color(0xFFDC2626),
-                    fontSize: 11,
+                    color: isOnline ? SColors.emerald600 : SColors.red600,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    fontFamily: 'Cairo',
+                    fontFamily: 'Tajawal',
                   ),
                 ),
               ],
@@ -523,7 +574,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const DriverNotificationsScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const DriverNotificationsScreen(),
+                ),
               ).then((_) {
                 if (context.mounted) {
                   context.read<DriverHomeCubit>().refreshHome();
@@ -537,10 +590,14 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: context.sc.surfaceMuted,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B), size: 20),
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    color: context.sc.textHeading,
+                    size: 20,
+                  ),
                 ),
                 if (state.unreadNotificationsCount > 0)
                   Positioned(
@@ -549,18 +606,21 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFEF4444),
+                        color: SColors.red500,
                         shape: BoxShape.circle,
                       ),
-                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
                       child: Text(
                         '${state.unreadNotificationsCount}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 9,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
+                          fontFamily: 'Tajawal',
                           height: 1.0,
                         ),
                       ),
@@ -574,7 +634,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           // Toggle Duty Switch
           Switch.adaptive(
             value: isOnline,
-            activeTrackColor: const Color(0xFF10B981),
+            activeTrackColor: SColors.emerald500,
             onChanged: (val) => context.read<DriverHomeCubit>().toggleDuty(val),
           ),
         ],
@@ -591,7 +651,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           children: [
             const Text(
               'سجل رحلات اليوم',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+              ),
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -602,29 +666,33 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         children: [
                           Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFF1F5F9),
+                            decoration: BoxDecoration(
+                              color: context.sc.surfaceMuted,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.two_wheeler_outlined, size: 40, color: AppColors.textSecondary),
+                            child: Icon(
+                              Icons.two_wheeler_outlined,
+                              size: 40,
+                              color: context.sc.textSecondary,
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             'لا توجد رحلات مسلّمة اليوم',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
-                              color: AppColors.textPrimary,
+                              fontFamily: 'Tajawal',
+                              color: context.sc.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 6),
-                          const Text(
+                          Text(
                             'عند استلام وتوصيل الطلبيات، ستظهر تفاصيل الرحلات هنا',
                             style: TextStyle(
                               fontSize: 12,
-                              fontFamily: 'Cairo',
-                              color: AppColors.textSecondary,
+                              fontFamily: 'Tajawal',
+                              color: context.sc.textSecondary,
                             ),
                           ),
                         ],
@@ -637,9 +705,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           margin: const EdgeInsets.only(bottom: 10),
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.sc.surface,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                            border: Border.all(color: context.sc.border),
                           ),
                           child: Row(
                             children: [
@@ -649,7 +717,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                                   color: AppColors.onlineGreenLight,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.check_rounded, color: AppColors.onlineGreen, size: 20),
+                                child: const Icon(
+                                  Icons.check_rounded,
+                                  color: AppColors.onlineGreen,
+                                  size: 20,
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -658,11 +730,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                                   children: [
                                     Text(
                                       'طلب مكتمل #${index + 1}',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Tajawal',
+                                      ),
                                     ),
-                                    const Text(
+                                    Text(
                                       'تم التوصيل بنجاح',
-                                      style: TextStyle(color: AppColors.textSecondary, fontSize: 12, fontFamily: 'Cairo'),
+                                      style: TextStyle(
+                                        color: context.sc.textSecondary,
+                                        fontSize: 12,
+                                        fontFamily: 'Tajawal',
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -695,17 +774,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'المحفظة والتحصيلات المالية',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Cairo',
-                    color: AppColors.textPrimary,
+                    fontFamily: 'Tajawal',
+                    color: context.sc.textPrimary,
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primaryLight,
                     borderRadius: BorderRadius.circular(10),
@@ -715,8 +797,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                     style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                      fontFamily: 'Cairo',
+                      fontSize: 12,
+                      fontFamily: 'Tajawal',
                     ),
                   ),
                 ),
@@ -732,9 +814,12 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.sc.surface,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.onlineGreen.withValues(alpha: 0.3), width: 1.5),
+                      border: Border.all(
+                        color: AppColors.onlineGreen.withValues(alpha: 0.3),
+                        width: 1.5,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.onlineGreen.withValues(alpha: 0.08),
@@ -762,7 +847,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.onlineGreenLight,
                                 borderRadius: BorderRadius.circular(6),
@@ -771,32 +859,32 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                                 'أرباحك',
                                 style: TextStyle(
                                   color: AppColors.onlineGreen,
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: 'Cairo',
+                                  fontFamily: 'Tajawal',
                                 ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 10),
-                        const Text(
+                        Text(
                           'محصلة التوصيل لليوم',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: context.sc.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            fontFamily: 'Cairo',
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${todayEarnings.toStringAsFixed(2)} د.ل',
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
+                          style: TextStyle(
+                            color: context.sc.textPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -804,8 +892,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           '${state.completedOrdersCount} طلبيات مكتملة',
                           style: const TextStyle(
                             color: AppColors.onlineGreen,
-                            fontSize: 11,
-                            fontFamily: 'Cairo',
+                            fontSize: 12,
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                       ],
@@ -820,9 +908,12 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.sc.surface,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.busyOrange.withValues(alpha: 0.3), width: 1.5),
+                      border: Border.all(
+                        color: AppColors.busyOrange.withValues(alpha: 0.3),
+                        width: 1.5,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.busyOrange.withValues(alpha: 0.08),
@@ -850,7 +941,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.busyOrangeLight,
                                 borderRadius: BorderRadius.circular(6),
@@ -859,32 +953,32 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                                 'نقد كاش',
                                 style: TextStyle(
                                   color: AppColors.busyOrange,
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: 'Cairo',
+                                  fontFamily: 'Tajawal',
                                 ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 10),
-                        const Text(
+                        Text(
                           'إجمالي العهدة لليوم',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: context.sc.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            fontFamily: 'Cairo',
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${todayCashCustody.toStringAsFixed(2)} د.ل',
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
+                          style: TextStyle(
+                            color: context.sc.textPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -892,8 +986,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           'مطلوب توريدها للإدارة',
                           style: TextStyle(
                             color: AppColors.busyOrange,
-                            fontSize: 11,
-                            fontFamily: 'Cairo',
+                            fontSize: 12,
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                       ],
@@ -912,8 +1006,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFF0F172A),
-                    Color(0xFF1E293B),
+                    SColors.slate900,
+                    SColors.slate800,
                     Color(0xFF0F766E),
                   ],
                   begin: Alignment.topRight,
@@ -955,25 +1049,30 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               color: Colors.white70,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
+                              fontFamily: 'Tajawal',
                             ),
                           ),
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.onlineGreen.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.onlineGreen.withValues(alpha: 0.6)),
+                          border: Border.all(
+                            color: AppColors.onlineGreen.withValues(alpha: 0.6),
+                          ),
                         ),
                         child: const Text(
-                          'أداء ممتاز ⭐',
+                          'أداء ممتاز',
                           style: TextStyle(
                             color: AppColors.onlineGreen,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                       ),
@@ -986,23 +1085,32 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       color: Colors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Cairo',
+                      fontFamily: 'Tajawal',
                       letterSpacing: 0.5,
                     ),
                   ),
                   const Text(
                     'صافي أرباح التوصيل المتراكمة المستحقة للسائق',
-                    style: TextStyle(color: Colors.white60, fontSize: 12, fontFamily: 'Cairo'),
+                    style: TextStyle(
+                      color: Colors.white60,
+                      fontSize: 12,
+                      fontFamily: 'Tajawal',
+                    ),
                   ),
                   const SizedBox(height: 18),
 
                   // 3-Pill Stat Row inside Monthly Card
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1015,7 +1123,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         Container(width: 1, height: 28, color: Colors.white12),
                         _buildMonthlyMiniStat(
                           label: 'المتوسط اليومي',
-                          value: '${(monthlyEarnings / 30).toStringAsFixed(1)} د.ل',
+                          value:
+                              '${(monthlyEarnings / 30).toStringAsFixed(1)} د.ل',
                           icon: Icons.trending_up_rounded,
                         ),
                         Container(width: 1, height: 28, color: Colors.white12),
@@ -1039,15 +1148,19 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         children: const [
                           Text(
                             'هدف الدخل الشهري (2,000 د.ل)',
-                            style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'Cairo'),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontFamily: 'Tajawal',
+                            ),
                           ),
                           Text(
                             '72.5%',
                             style: TextStyle(
                               color: AppColors.onlineGreen,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
+                              fontFamily: 'Tajawal',
                             ),
                           ),
                         ],
@@ -1058,7 +1171,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         child: LinearProgressIndicator(
                           value: (monthlyEarnings / 2000.0).clamp(0.0, 1.0),
                           backgroundColor: Colors.white12,
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.onlineGreen),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColors.onlineGreen,
+                          ),
                           minHeight: 7,
                         ),
                       ),
@@ -1074,9 +1189,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.sc.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: context.sc.border),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.02),
@@ -1098,16 +1213,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               color: AppColors.primaryLight,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(Icons.handshake_rounded, color: AppColors.primary, size: 20),
+                            child: const Icon(
+                              Icons.handshake_rounded,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
                           ),
                           const SizedBox(width: 10),
-                          const Text(
+                          Text(
                             'تسوية العهدة النقدية والأرباح',
                             style: TextStyle(
-                              color: AppColors.textPrimary,
+                              color: context.sc.textPrimary,
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
+                              fontFamily: 'Tajawal',
                             ),
                           ),
                         ],
@@ -1115,7 +1234,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       TextButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.qr_code_rounded, size: 18),
-                        label: const Text('كود التوريد', style: TextStyle(fontFamily: 'Cairo', fontSize: 12)),
+                        label: const Text(
+                          'كود التوريد',
+                          style: TextStyle(fontFamily: 'Tajawal', fontSize: 12),
+                        ),
                       ),
                     ],
                   ),
@@ -1127,21 +1249,33 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('تم إرسال طلب تسوية العهدة النقدية بنجاح إلى مشرف العمليات', style: TextStyle(fontFamily: 'Cairo')),
+                                content: Text(
+                                  'تم إرسال طلب تسوية العهدة النقدية بنجاح إلى مشرف العمليات',
+                                  style: TextStyle(fontFamily: 'Tajawal'),
+                                ),
                                 backgroundColor: AppColors.onlineGreen,
                               ),
                             );
                           },
-                          icon: const Icon(Icons.receipt_long_rounded, size: 18),
+                          icon: const Icon(
+                            Icons.receipt_long_rounded,
+                            size: 18,
+                          ),
                           label: const Text(
                             'طلب تسوية عهدة كاش',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Tajawal',
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.busyOrange,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ),
@@ -1151,21 +1285,33 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('تم تحويل أرباحك إلى حساب المحفظة البنكية', style: TextStyle(fontFamily: 'Cairo')),
+                                content: Text(
+                                  'تم تحويل أرباحك إلى حساب المحفظة البنكية',
+                                  style: TextStyle(fontFamily: 'Tajawal'),
+                                ),
                                 backgroundColor: AppColors.primary,
                               ),
                             );
                           },
-                          icon: const Icon(Icons.account_balance_rounded, size: 18),
+                          icon: const Icon(
+                            Icons.account_balance_rounded,
+                            size: 18,
+                          ),
                           label: const Text(
                             'سحب الأرباح',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Tajawal',
+                            ),
                           ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
                             side: const BorderSide(color: AppColors.primary),
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ),
@@ -1178,13 +1324,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             const SizedBox(height: 18),
 
             // 4. RECENT FINANCIAL TRANSACTIONS LIST
-            const Text(
+            Text(
               'سجل التحصيلات والتسويات الأخيرة',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Cairo',
-                color: AppColors.textPrimary,
+                fontFamily: 'Tajawal',
+                color: context.sc.textPrimary,
               ),
             ),
             const SizedBox(height: 10),
@@ -1192,14 +1338,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.sc.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: context.sc.border),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
                   'لا توجد حركات تسوية أو تحصيل مسجلة حالياً',
-                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontFamily: 'Cairo'),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: context.sc.textSecondary,
+                    fontFamily: 'Tajawal',
+                  ),
                 ),
               ),
             ),
@@ -1225,17 +1375,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             color: Colors.white,
             fontSize: 12,
             fontWeight: FontWeight.bold,
-            fontFamily: 'Cairo',
+            fontFamily: 'Tajawal',
           ),
         ),
         Text(
           label,
-          style: const TextStyle(color: Colors.white60, fontSize: 10, fontFamily: 'Cairo'),
+          style: const TextStyle(
+            color: Colors.white60,
+            fontSize: 12,
+            fontFamily: 'Tajawal',
+          ),
         ),
       ],
     );
   }
-
 
   Widget _buildProfileTab(DriverHomeState state) {
     return SafeArea(
@@ -1249,14 +1402,25 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               children: [
                 const Text(
                   'الملف الشخصي للكابتن',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Tajawal',
+                  ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: state.isOnline ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9),
+                    color: state.isOnline ? SColors.green100 : SColors.slate100,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: state.isOnline ? const Color(0xFF86EFAC) : const Color(0xFFCBD5E1)),
+                    border: Border.all(
+                      color: state.isOnline
+                          ? SColors.green300
+                          : context.sc.borderStrong,
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -1265,17 +1429,21 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: state.isOnline ? const Color(0xFF16A34A) : const Color(0xFF94A3B8),
+                          color: state.isOnline
+                              ? SColors.green600
+                              : SColors.slate400,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         state.isOnline ? 'متاح للطلبات' : 'غير متصل',
                         style: TextStyle(
-                          color: state.isOnline ? const Color(0xFF16A34A) : const Color(0xFF64748B),
-                          fontSize: 11,
+                          color: state.isOnline
+                              ? SColors.green600
+                              : context.sc.textSecondary,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
+                          fontFamily: 'Tajawal',
                         ),
                       ),
                     ],
@@ -1290,7 +1458,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.sc.surface,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -1299,7 +1467,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                     offset: const Offset(0, 4),
                   ),
                 ],
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: context.sc.border),
               ),
               child: Column(
                 children: [
@@ -1311,7 +1479,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                         height: 80,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF0052FF), Color(0xFF06B6D4)],
+                            colors: [SColors.brand, SColors.cyan500],
                             begin: Alignment.topRight,
                             end: Alignment.bottomLeft,
                           ),
@@ -1319,57 +1487,82 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           border: Border.all(color: Colors.white, width: 3),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF0052FF).withValues(alpha: 0.2),
+                              color: SColors.brand.withValues(alpha: 0.2),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
                           ],
                         ),
                         child: const Center(
-                          child: Icon(Icons.two_wheeler_rounded, color: Colors.white, size: 44),
+                          child: Icon(
+                            Icons.two_wheeler_rounded,
+                            color: Colors.white,
+                            size: 44,
+                          ),
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: state.isOnline ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                          color: state.isOnline
+                              ? SColors.emerald500
+                              : SColors.slate400,
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),
                         ),
-                        child: const Icon(Icons.check, color: Colors.white, size: 12),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 12,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
                     state.profile?.name ?? 'الكابتن',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Tajawal',
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     state.profile?.phone ?? '--',
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, fontFamily: 'Cairo'),
+                    style: TextStyle(
+                      color: context.sc.textSecondary,
+                      fontSize: 13,
+                      fontFamily: 'Tajawal',
+                    ),
                   ),
                   const SizedBox(height: 14),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: context.sc.page,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: context.sc.border),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+                      children: [
+                        Icon(
+                          Icons.star_rounded,
+                          color: SColors.amber500,
+                          size: 18,
+                        ),
                         SizedBox(width: 4),
                         Text(
                           'تقييم الكابتن: 4.9 ★ (128 تقييم)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF334155),
-                            fontFamily: 'Cairo',
+                            color: context.sc.textStrong,
+                            fontFamily: 'Tajawal',
                           ),
                         ),
                       ],
@@ -1385,25 +1578,45 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.sc.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: context.sc.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'بيانات المركبة والعمليات',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Tajawal',
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  _buildProfileRow(Icons.two_wheeler_outlined, 'نوع المركبة', 'دراجة نارية سريعة'),
-                  const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                  _buildProfileRow(Icons.pin_outlined, 'رقم لوحة المركبة', 'طرابلس 12-58493'),
-                  const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                  _buildProfileRow(Icons.verified_user_outlined, 'حالة الحساب', 'موثق ومعتمد رسمي'),
-                  const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                  _buildProfileRow(Icons.headset_mic_outlined, 'دعم العمليات', '0910000002'),
+                  _buildProfileRow(
+                    Icons.two_wheeler_outlined,
+                    'نوع المركبة',
+                    'دراجة نارية سريعة',
+                  ),
+                  Divider(height: 20, color: context.sc.borderSubtle),
+                  _buildProfileRow(
+                    Icons.pin_outlined,
+                    'رقم لوحة المركبة',
+                    'طرابلس 12-58493',
+                  ),
+                  Divider(height: 20, color: context.sc.borderSubtle),
+                  _buildProfileRow(
+                    Icons.verified_user_outlined,
+                    'حالة الحساب',
+                    'موثق ومعتمد رسمي',
+                  ),
+                  Divider(height: 20, color: context.sc.borderSubtle),
+                  _buildProfileRow(
+                    Icons.headset_mic_outlined,
+                    'دعم العمليات',
+                    '0910000002',
+                  ),
                 ],
               ),
             ),
@@ -1416,19 +1629,25 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: () => _confirmLogout(context),
-                icon: const Icon(Icons.logout_rounded, size: 20, color: Colors.white),
+                icon: const Icon(
+                  Icons.logout_rounded,
+                  size: 20,
+                  color: Colors.white,
+                ),
                 label: const Text(
                   'تسجيل الخروج وإنهاء الوردية',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    fontFamily: 'Cairo',
+                    fontFamily: 'Tajawal',
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFDC2626),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  backgroundColor: SColors.red600,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -1443,16 +1662,25 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   Widget _buildProfileRow(IconData icon, String title, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        Icon(icon, size: 20, color: context.sc.textSecondary),
         const SizedBox(width: 10),
         Text(
           title,
-          style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontFamily: 'Cairo'),
+          style: TextStyle(
+            fontSize: 13,
+            color: context.sc.textSecondary,
+            fontFamily: 'Tajawal',
+          ),
         ),
         const Spacer(),
         Text(
           value,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E293B), fontFamily: 'Cairo'),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: context.sc.textHeading,
+            fontFamily: 'Tajawal',
+          ),
         ),
       ],
     );
@@ -1462,26 +1690,37 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: context.sc.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: const [
-            Icon(Icons.warning_amber_rounded, color: Color(0xFFDC2626), size: 24),
+            Icon(Icons.warning_amber_rounded, color: SColors.red600, size: 24),
             SizedBox(width: 8),
             Text(
               'تسجيل الخروج',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+              ),
             ),
           ],
         ),
-        content: const Text(
-          'هل أنت متأكد من إنهاء وردية العمل وتسجيل الخروج من تطبيق كابتن وينجز؟',
-          style: TextStyle(fontSize: 13, color: Color(0xFF475569), fontFamily: 'Cairo'),
+        content: Text(
+          'هل أنت متأكد من إنهاء وردية العمل وتسجيل الخروج من تطبيق كابتن سديم؟',
+          style: TextStyle(
+            fontSize: 13,
+            color: context.sc.textBody,
+            fontFamily: 'Tajawal',
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('إلغاء', style: TextStyle(color: Color(0xFF64748B), fontFamily: 'Cairo')),
+            child: Text(
+              'إلغاء',
+              style: TextStyle(color: context.sc.textSecondary, fontFamily: 'Tajawal'),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -1494,13 +1733,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
+              backgroundColor: SColors.red600,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             child: const Text(
               'نعم، خروج',
-              style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+              ),
             ),
           ),
         ],

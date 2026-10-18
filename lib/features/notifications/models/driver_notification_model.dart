@@ -30,7 +30,9 @@ class DriverNotificationItem {
       actionType: json['action_type'] ?? 'none',
       actionId: json['action_id']?.toString(),
       isRead: json['read_at'] != null || json['is_read'] == true,
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
       data: json['data'] is Map<String, dynamic> ? json['data'] : null,
     );
   }
