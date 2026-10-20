@@ -16,6 +16,15 @@ class DriverHomeState extends Equatable {
   final double depositAmount;
   final double remainingDepositCapacity;
   final int unreadNotificationsCount;
+
+  /// المطلوب توريده (العهدة - الأجر) أو المستحق صرفه للسائق إن زاد أجره، وبرنامج المكافآت اليوم
+  final double requiredRemittance;
+  final double payoutDue;
+  final bool rewardEnabled;
+  final int rewardEvery;
+  final int rewardRemaining;
+  final int rewardTodayDeliveries;
+  final String rewardValueLabel;
   final String? errorMessage;
   final bool isUpdatingStatus;
 
@@ -36,6 +45,13 @@ class DriverHomeState extends Equatable {
     this.depositAmount = 0.0,
     this.remainingDepositCapacity = 0.0,
     this.unreadNotificationsCount = 0,
+    this.requiredRemittance = 0.0,
+    this.payoutDue = 0.0,
+    this.rewardEnabled = false,
+    this.rewardEvery = 0,
+    this.rewardRemaining = 0,
+    this.rewardTodayDeliveries = 0,
+    this.rewardValueLabel = '',
     this.errorMessage,
     this.isUpdatingStatus = false,
     this.driverLat,
@@ -58,6 +74,13 @@ class DriverHomeState extends Equatable {
     double? depositAmount,
     double? remainingDepositCapacity,
     int? unreadNotificationsCount,
+    double? requiredRemittance,
+    double? payoutDue,
+    bool? rewardEnabled,
+    int? rewardEvery,
+    int? rewardRemaining,
+    int? rewardTodayDeliveries,
+    String? rewardValueLabel,
     String? errorMessage,
     bool? isUpdatingStatus,
     double? driverLat,
@@ -78,6 +101,13 @@ class DriverHomeState extends Equatable {
           remainingDepositCapacity ?? this.remainingDepositCapacity,
       unreadNotificationsCount:
           unreadNotificationsCount ?? this.unreadNotificationsCount,
+      requiredRemittance: requiredRemittance ?? this.requiredRemittance,
+      payoutDue: payoutDue ?? this.payoutDue,
+      rewardEnabled: rewardEnabled ?? this.rewardEnabled,
+      rewardEvery: rewardEvery ?? this.rewardEvery,
+      rewardRemaining: rewardRemaining ?? this.rewardRemaining,
+      rewardTodayDeliveries: rewardTodayDeliveries ?? this.rewardTodayDeliveries,
+      rewardValueLabel: rewardValueLabel ?? this.rewardValueLabel,
       errorMessage: errorMessage,
       isUpdatingStatus: isUpdatingStatus ?? this.isUpdatingStatus,
       driverLat: driverLat ?? this.driverLat,
@@ -99,6 +129,13 @@ class DriverHomeState extends Equatable {
     depositAmount,
     remainingDepositCapacity,
     unreadNotificationsCount,
+    requiredRemittance,
+    payoutDue,
+    rewardEnabled,
+    rewardEvery,
+    rewardRemaining,
+    rewardTodayDeliveries,
+    rewardValueLabel,
     errorMessage,
     isUpdatingStatus,
     driverLat,

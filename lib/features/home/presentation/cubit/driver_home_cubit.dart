@@ -97,6 +97,13 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
       double cod = state.codCustody;
       double deposit = state.depositAmount;
       double capacity = state.remainingDepositCapacity;
+      double remittance = state.requiredRemittance;
+      double payoutDue = state.payoutDue;
+      bool rewardEnabled = state.rewardEnabled;
+      int rewardEvery = state.rewardEvery;
+      int rewardRemaining = state.rewardRemaining;
+      int rewardToday = state.rewardTodayDeliveries;
+      String rewardValue = state.rewardValueLabel;
 
       if (finResp != null &&
           finResp.statusCode == 200 &&
@@ -130,6 +137,20 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
             (custodyObj?['remaining_capacity'] as num?)?.toDouble() ??
             (finData['remaining_deposit_capacity'] as num?)?.toDouble() ??
             0.0;
+        remittance =
+            (custodyObj?['required_remittance'] as num?)?.toDouble() ?? 0.0;
+        payoutDue = (custodyObj?['payout_due'] as num?)?.toDouble() ?? 0.0;
+
+        final reward = earningsObj?['reward_program'];
+        if (reward is Map) {
+          rewardEnabled = reward['enabled'] == true;
+          rewardEvery = (reward['every'] as num?)?.toInt() ?? 0;
+          rewardRemaining = (reward['remaining_to_reward'] as num?)?.toInt() ?? 0;
+          rewardToday = (reward['today_deliveries'] as num?)?.toInt() ?? 0;
+          rewardValue = reward['reward_type'] == 'fixed_amount'
+              ? '${((reward['reward_amount'] as num?) ?? 0).toStringAsFixed(2)} د.ل'
+              : 'رسوم التوصيل كاملة';
+        }
       }
 
       emit(
@@ -143,6 +164,13 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
           codCustody: cod,
           depositAmount: deposit,
           remainingDepositCapacity: capacity,
+          requiredRemittance: remittance,
+          payoutDue: payoutDue,
+          rewardEnabled: rewardEnabled,
+          rewardEvery: rewardEvery,
+          rewardRemaining: rewardRemaining,
+          rewardTodayDeliveries: rewardToday,
+          rewardValueLabel: rewardValue,
           shiftHours: 0.0,
           acceptanceRate: 100.0,
           unreadNotificationsCount: unreadNotifications,

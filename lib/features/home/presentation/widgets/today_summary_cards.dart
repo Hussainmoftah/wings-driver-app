@@ -53,7 +53,7 @@ class TodaySummaryCards extends StatelessWidget {
               Expanded(
                 child: _buildMetricCard(
                   context: context,
-                  title: 'أرباح اليوم',
+                  title: 'مستحقاتي',
                   value: '${todayEarnings.toStringAsFixed(2)} د.ل',
                   icon: Icons.account_balance_wallet_rounded,
                   iconColor: AppColors.onlineGreen,

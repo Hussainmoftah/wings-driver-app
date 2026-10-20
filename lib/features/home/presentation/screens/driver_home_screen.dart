@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/driver_wallet_cards.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
@@ -249,6 +250,21 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                     const SizedBox(height: 12),
 
                     // Today's Summary Metrics inside the sheet
+                    // نافذتا العهدة والمستحقات + تقدم المكافأة
+                    DriverWalletCards(
+                      cashCustody: state.codCustody,
+                      requiredRemittance: state.requiredRemittance,
+                      earnings: state.todayEarnings,
+                      payoutDue: state.payoutDue,
+                      rewardEnabled: state.rewardEnabled,
+                      rewardEvery: state.rewardEvery,
+                      rewardRemaining: state.rewardRemaining,
+                      todayDeliveries: state.rewardTodayDeliveries,
+                      rewardValueLabel: state.rewardValueLabel,
+                    ),
+
+                    const SizedBox(height: 12),
+
                     TodaySummaryCards(
                       todayEarnings: state.todayEarnings,
                       completedOrdersCount: state.completedOrdersCount,
