@@ -43,6 +43,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
       backgroundColor: const Color(0xFFF0F3F4),
       body: BlocConsumer<DriverHomeCubit, DriverHomeState>(
         listener: (context, state) {
+          if (state.status != DriverHomeStatus.unauthenticated &&
+              state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: SColors.red600,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
           if (state.status == DriverHomeStatus.unauthenticated) {
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(

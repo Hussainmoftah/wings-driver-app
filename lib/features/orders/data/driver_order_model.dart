@@ -70,6 +70,10 @@ class DriverOrderModel {
   final double deliveryFee;
   final double discount;
   final double total;
+
+  /// طريقة الدفع، والمبلغ الذي يحصّله السائق من الزبون (صفر إن دُفع مسبقاً)
+  final String? paymentMethod;
+  final double amountToCollect;
   final String? customerName;
   final String? customerPhone;
   final String? customerAddress;
@@ -98,6 +102,8 @@ class DriverOrderModel {
     required this.deliveryFee,
     this.discount = 0.0,
     required this.total,
+    this.paymentMethod,
+    this.amountToCollect = 0.0,
     this.customerName,
     this.customerPhone,
     this.customerAddress,
@@ -207,6 +213,9 @@ class DriverOrderModel {
       deliveryFee: parseNum(json['delivery_fee']),
       discount: parseNum(json['discount']),
       total: parseNum(json['total']),
+      paymentMethod: json['payment_method']?.toString(),
+      // خادم أقدم لا يرسل المبلغ: يُفترض الدفع نقداً بقيمة الطلب
+      amountToCollect: parseNum(json['amount_to_collect'], parseNum(json['total'])),
       customerName: customer?['name'],
       customerPhone: customer?['phone'],
       customerAddress: resolvedCustomerAddress,

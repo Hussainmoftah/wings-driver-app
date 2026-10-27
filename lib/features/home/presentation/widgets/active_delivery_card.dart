@@ -28,10 +28,15 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
 
   @override
   Widget build(BuildContext context) {
+    // الاستلام يُتاح فقط حين يجهز الطلب؛ قبلها يرفض الخادم (كان الزر يظهر أثناء التحضير)
     final bool isReadyForPickup =
         widget.order.status == 'ready' ||
+        widget.order.status == 'ready_for_pickup';
+    final bool isWaitingKitchen =
+        widget.order.status == 'pending' ||
         widget.order.status == 'accepted' ||
         widget.order.status == 'preparing';
+    final double toCollect = widget.order.amountToCollect;
     final bool isOnTheWay =
         widget.order.status == 'on_the_way' ||
         widget.order.status == 'on_delivery';
@@ -442,7 +447,7 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: widget.isUpdating
+                    onPressed: widget.isUpdating || isWaitingKitchen
                         ? null
                         : () {
                             if (isReadyForPickup) {
@@ -488,7 +493,11 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
                               const SizedBox(width: 8),
                               Text(
                                 isOnTheWay
-                                    ? 'تأكيد تسليم الطلب وتحصيل ${widget.order.total.toStringAsFixed(2)} د.ل'
+                                    ? (toCollect > 0
+                                          ? 'تأكيد التسليم وتحصيل ${toCollect.toStringAsFixed(2)} د.ل'
+                                          : 'تأكيد التسليم (مدفوع مسبقاً)')
+                                    : isWaitingKitchen
+                                    ? 'المطعم يحضّر الطلب، انتظر حتى يجهز'
                                     : 'تأكيد استلام الطلب من المطعم والانطلاق',
                                 style: const TextStyle(
                                   fontSize: 14,

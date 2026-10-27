@@ -383,7 +383,16 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
         '✅ [Driver Status Update] Successfully updated order $orderId to $newStatus',
       );
     } catch (e) {
+      // الخادم رفض (مثلاً الطلب ما زال يُحضَّر): لا نغيّر الشاشة ونُظهر السبب للسائق
       debugPrint('⚠️ [Driver Status Update] Error: $e');
+      String message = 'تعذر تحديث حالة الطلب، حاول مرة أخرى.';
+      try {
+        final m = (e as dynamic).message;
+        if (m is String && m.trim().isNotEmpty) message = m;
+      } catch (_) {}
+      emit(state.copyWith(isUpdatingStatus: false, errorMessage: message));
+      await _fetchData();
+      return;
     }
 
     if (newStatus == 'delivered' || newStatus == 'completed') {
@@ -405,6 +414,8 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
         subtotal: state.activeOrder?.subtotal ?? 0.0,
         deliveryFee: state.activeOrder?.deliveryFee ?? 10.0,
         total: state.activeOrder?.total ?? 0.0,
+        paymentMethod: state.activeOrder?.paymentMethod,
+        amountToCollect: state.activeOrder?.amountToCollect ?? 0.0,
         customerName: state.activeOrder?.customerName,
         customerPhone: state.activeOrder?.customerPhone,
         customerAddress: state.activeOrder?.customerAddress,
