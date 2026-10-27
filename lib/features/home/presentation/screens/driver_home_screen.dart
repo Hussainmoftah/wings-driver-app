@@ -9,6 +9,7 @@ import '../cubit/driver_home_cubit.dart';
 import '../cubit/driver_home_state.dart';
 import '../../../notifications/screens/driver_notifications_screen.dart';
 import '../widgets/active_delivery_card.dart';
+import '../../../orders/data/driver_order_model.dart';
 import '../widgets/driver_live_map_widget.dart';
 import '../widgets/offline_duty_banner.dart';
 import '../widgets/radar_search_widget.dart';
@@ -238,6 +239,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                           setState(() => _mapFocus = MapFocusTarget.customer);
                         },
                       ),
+                      if (state.nextOrder != null) ...[
+                        const SizedBox(height: 10),
+                        _NextOrderBanner(order: state.nextOrder!),
+                      ],
                     ] else if (isOnline) ...[
                       const RadarSearchWidget(),
                     ] else ...[
@@ -1761,6 +1766,42 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Tajawal',
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// طلب أُسند للسائق خلف توصيلته الجارية: يستلمه من المطعم بعد تسليمها
+class _NextOrderBanner extends StatelessWidget {
+  final DriverOrderModel order;
+
+  const _NextOrderBanner({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    return SCard(
+      color: context.sc.brandTint,
+      padding: const EdgeInsets.all(SSpacing.md),
+      child: Row(
+        children: [
+          Icon(Icons.queue_outlined, color: context.sc.brandText),
+          const SizedBox(width: SSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'طلبك التالي ${order.orderNumber}${order.restaurantName != null ? ' · ${order.restaurantName}' : ''}',
+                  style: STextStyles.label.copyWith(fontWeight: FontWeight.w700, color: context.sc.textPrimary),
+                ),
+                Text(
+                  'سلّم طلبك الحالي أولاً، ثم توجه للمطعم لاستلامه.',
+                  style: STextStyles.caption.copyWith(color: context.sc.textSecondary),
+                ),
+              ],
             ),
           ),
         ],

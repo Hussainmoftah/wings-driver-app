@@ -8,6 +8,9 @@ class DriverHomeState extends Equatable {
   final DriverHomeStatus status;
   final DriverProfileModel? profile;
   final DriverOrderModel? activeOrder;
+
+  /// طلب أُسند خلف التوصيلة الجارية (يستلمه بعد تسليمها)
+  final DriverOrderModel? nextOrder;
   final double todayEarnings;
   final int completedOrdersCount;
   final double shiftHours;
@@ -37,6 +40,7 @@ class DriverHomeState extends Equatable {
     this.status = DriverHomeStatus.initial,
     this.profile,
     this.activeOrder,
+    this.nextOrder,
     this.todayEarnings = 0.0,
     this.completedOrdersCount = 0,
     this.shiftHours = 0.0,
@@ -66,6 +70,8 @@ class DriverHomeState extends Equatable {
     DriverProfileModel? profile,
     DriverOrderModel? activeOrder,
     bool clearActiveOrder = false,
+    DriverOrderModel? nextOrder,
+    bool clearNextOrder = false,
     double? todayEarnings,
     int? completedOrdersCount,
     double? shiftHours,
@@ -91,6 +97,7 @@ class DriverHomeState extends Equatable {
       status: status ?? this.status,
       profile: profile ?? this.profile,
       activeOrder: clearActiveOrder ? null : (activeOrder ?? this.activeOrder),
+      nextOrder: clearNextOrder ? null : (nextOrder ?? this.nextOrder),
       todayEarnings: todayEarnings ?? this.todayEarnings,
       completedOrdersCount: completedOrdersCount ?? this.completedOrdersCount,
       shiftHours: shiftHours ?? this.shiftHours,
@@ -121,6 +128,7 @@ class DriverHomeState extends Equatable {
     status,
     profile,
     activeOrder,
+    nextOrder,
     todayEarnings,
     completedOrdersCount,
     shiftHours,

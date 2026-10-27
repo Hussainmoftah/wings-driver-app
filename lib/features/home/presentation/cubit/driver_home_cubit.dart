@@ -90,7 +90,12 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
       final unreadNotifications = results[2] as int;
       final finResp = results[3] as dynamic;
 
-      final activeOrder = activeOrders.isNotEmpty ? activeOrders.first : null;
+      // التوصيلة الجارية أولاً، ثم الجاهز للاستلام، ثم ما زال يُحضَّر (طلب مُسند خلف توصيلة)
+      const stageRank = {'on_the_way': 0, 'on_delivery': 0, 'ready': 1, 'ready_for_pickup': 1};
+      final sorted = [...activeOrders]
+        ..sort((a, b) => (stageRank[a.status] ?? 2).compareTo(stageRank[b.status] ?? 2));
+      final activeOrder = sorted.isNotEmpty ? sorted.first : null;
+      final nextOrder = sorted.length > 1 ? sorted[1] : null;
 
       double earnings = state.todayEarnings;
       int completedTrips = state.completedOrdersCount;
@@ -159,6 +164,8 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
           profile: profile,
           activeOrder: activeOrder,
           clearActiveOrder: activeOrder == null,
+          nextOrder: nextOrder,
+          clearNextOrder: nextOrder == null,
           todayEarnings: earnings,
           completedOrdersCount: completedTrips,
           codCustody: cod,
