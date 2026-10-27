@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/network/api_constants.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../home/presentation/screens/driver_home_screen.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -678,6 +680,19 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
     );
   }
 
+  /// نموذج التقديم صفحة ويب واحدة (نفس رابط الإعلانات) تُفتح داخل التطبيق
+  Future<void> _openJoinPage() async {
+    final opened = await launchUrl(
+      Uri.parse(ApiConstants.joinPageUrl),
+      mode: LaunchMode.inAppBrowserView,
+    );
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر فتح صفحة التقديم، حاول مرة أخرى.')),
+      );
+    }
+  }
+
   void _showJoinFleetSheet() {
     showModalBottomSheet(
       context: context,
@@ -710,7 +725,6 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
               'رخصة قيادة سارية المفعول (دراجة نارية أو سيارة).',
             ),
             _buildRequirementItem('كتيب ملكية المركبة أو توكيل رسمي معتمد.'),
-            _buildRequirementItem('الرقم الوطني والهوية الشخصية.'),
             _buildRequirementItem(
               'هاتف ذكي بنظام أندرويد أو iOS يدعم الملاحة اللحظية.',
             ),
@@ -719,7 +733,10 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: () => Navigator.pop(ctx),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _openJoinPage();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SColors.brand,
                   foregroundColor: Colors.white,
@@ -728,7 +745,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                   ),
                 ),
                 child: const Text(
-                  'تواصل مع إدارة التوظيف',
+                  'قدّم طلبك الآن',
                   style: TextStyle(
                     fontFamily: 'Tajawal',
                     fontWeight: FontWeight.bold,

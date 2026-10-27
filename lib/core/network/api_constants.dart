@@ -11,6 +11,10 @@ class ApiConstants {
     defaultValue: 'https://169.58.30.135.sslip.io/api',
   );
 
+  /// صفحة التقديم كمندوب توصيل (نفس رابط الإعلانات، والمصدر يميّز من جاء من التطبيق)
+  static String get joinPageUrl =>
+      '${baseUrl.replaceFirst(RegExp(r'/api/?$'), '')}/join?source=driver_app';
+
   // Auth endpoints
   static const String login = '/login';
   static const String refreshToken = '/auth/refresh';
