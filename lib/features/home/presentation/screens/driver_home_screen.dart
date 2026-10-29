@@ -9,11 +9,12 @@ import '../cubit/driver_home_cubit.dart';
 import '../cubit/driver_home_state.dart';
 import '../../../notifications/screens/driver_notifications_screen.dart';
 import '../widgets/active_delivery_card.dart';
+import '../../../../core/theme/driver_palette.dart';
+import '../../../../core/theme/theme_mode_controller.dart';
 import '../../../orders/data/driver_order_model.dart';
 import '../widgets/driver_live_map_widget.dart';
 import '../widgets/offline_duty_banner.dart';
 import '../widgets/radar_search_widget.dart';
-import '../widgets/today_summary_cards.dart';
 import 'package:sadeem_ui/sadeem_ui.dart';
 
 class DriverHomeScreen extends StatefulWidget {
@@ -40,7 +41,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F3F4),
+      backgroundColor: context.dp.ground,
       body: BlocConsumer<DriverHomeCubit, DriverHomeState>(
         listener: (context, state) {
           if (state.status != DriverHomeStatus.unauthenticated &&
@@ -111,9 +112,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentTabIndex,
           onTap: (index) => setState(() => _currentTabIndex = index),
-          backgroundColor: Colors.white,
-          selectedItemColor: SColors.googleBlue, // Google Blue
-          unselectedItemColor: SColors.slate400,
+          backgroundColor: context.dp.surface,
+          selectedItemColor: context.dp.navyInk,
+          unselectedItemColor: context.dp.muted,
           selectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             fontFamily: 'Tajawal',
@@ -278,14 +279,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       rewardValueLabel: state.rewardValueLabel,
                     ),
 
-                    const SizedBox(height: 12),
-
-                    TodaySummaryCards(
-                      todayEarnings: state.todayEarnings,
-                      completedOrdersCount: state.completedOrdersCount,
-                      shiftHours: state.shiftHours,
-                      acceptanceRate: state.acceptanceRate,
-                    ),
 
                     const SizedBox(height: 16),
 
@@ -680,12 +673,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'سجل رحلات اليوم',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
                 fontFamily: 'Tajawal',
+                color: context.dp.ink,
               ),
             ),
             const SizedBox(height: 12),
@@ -789,635 +783,90 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
     );
   }
 
+  /// فلوسي: رقم واحد واضح (المطلوب توريده أو المستحق لي)، كيف انحسب، والمكافأة.
+  /// لا أزرار تسوية وهمية: التسوية تتم مع محاسب السائقين وتظهر هنا بعد تسجيلها.
   Widget _buildWalletTab(DriverHomeState state) {
-    final double todayEarnings = state.todayEarnings;
-    final double todayCashCustody = state.codCustody;
-    final double monthlyEarnings = state.todayEarnings;
-    final int monthlyTrips = state.completedOrdersCount;
+    String money(double v) => '${v.toStringAsFixed(2)} د.ل';
+    final owesDriver = state.payoutDue > 0;
+
+    Widget row(String label, String value, {Color? valueColor, bool strong = false}) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(label,
+                    style: TextStyle(fontFamily: 'Tajawal', fontSize: strong ? 18 : 17, fontWeight: strong ? FontWeight.w800 : FontWeight.w500, color: strong ? context.dp.ink : context.dp.body)),
+              ),
+              Text(value, style: TextStyle(fontFamily: 'Tajawal', fontSize: strong ? 18 : 17, fontWeight: FontWeight.w800, color: valueColor ?? context.dp.ink)),
+            ],
+          ),
+        );
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: RefreshIndicator(
+        onRefresh: () => context.read<DriverHomeCubit>().loadHomeData(),
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 16),
           children: [
-            // Page Title
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'المحفظة والتحصيلات المالية',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Tajawal',
-                    color: context.sc.textPrimary,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Text(
-                    'سبتمبر 2026',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      fontFamily: 'Tajawal',
-                    ),
-                  ),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text('فلوسي', style: TextStyle(fontFamily: 'Tajawal', fontSize: 22, fontWeight: FontWeight.w800, color: context.dp.ink)),
             ),
-            const SizedBox(height: 16),
-
-            // 1. TOP DUAL HEADER SECTION: Today's Delivery Earnings & Today's Cash Custody Side-by-Side
-            Row(
-              children: [
-                // Right Card: محصلة التوصيل لليوم
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: context.sc.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.onlineGreen.withValues(alpha: 0.3),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.onlineGreen.withValues(alpha: 0.08),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.onlineGreenLight,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.payments_rounded,
-                                color: AppColors.onlineGreen,
-                                size: 20,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.onlineGreenLight,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text(
-                                'أرباحك',
-                                style: TextStyle(
-                                  color: AppColors.onlineGreen,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Tajawal',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'محصلة التوصيل لليوم',
-                          style: TextStyle(
-                            color: context.sc.textSecondary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${todayEarnings.toStringAsFixed(2)} د.ل',
-                          style: TextStyle(
-                            color: context.sc.textPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${state.completedOrdersCount} طلبيات مكتملة',
-                          style: const TextStyle(
-                            color: AppColors.onlineGreen,
-                            fontSize: 12,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                // Left Card: إجمالي العهدة لليوم
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: context.sc.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.busyOrange.withValues(alpha: 0.3),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.busyOrange.withValues(alpha: 0.08),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.busyOrangeLight,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.account_balance_wallet_rounded,
-                                color: AppColors.busyOrange,
-                                size: 20,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.busyOrangeLight,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text(
-                                'نقد كاش',
-                                style: TextStyle(
-                                  color: AppColors.busyOrange,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Tajawal',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'إجمالي العهدة لليوم',
-                          style: TextStyle(
-                            color: context.sc.textSecondary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${todayCashCustody.toStringAsFixed(2)} د.ل',
-                          style: TextStyle(
-                            color: context.sc.textPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'مطلوب توريدها للإدارة',
-                          style: TextStyle(
-                            color: AppColors.busyOrange,
-                            fontSize: 12,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+            const SizedBox(height: 14),
+            DriverWalletCards(
+              cashCustody: state.codCustody,
+              requiredRemittance: state.requiredRemittance,
+              earnings: state.todayEarnings,
+              payoutDue: state.payoutDue,
+              rewardEnabled: state.rewardEnabled,
+              rewardEvery: state.rewardEvery,
+              rewardRemaining: state.rewardRemaining,
+              todayDeliveries: state.rewardTodayDeliveries,
+              rewardValueLabel: state.rewardValueLabel,
             ),
-
-            const SizedBox(height: 18),
-
-            // 2. MONTHLY SUMMARY SECTION: محصلة التوصيل لمدة شهر
+            const SizedBox(height: 14),
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    SColors.slate900,
-                    SColors.slate800,
-                    Color(0xFF0F766E),
-                  ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.calendar_month_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Text(
-                            'محصلة التوصيل لشهر كامل (30 يوم)',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.onlineGreen.withValues(alpha: 0.25),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.onlineGreen.withValues(alpha: 0.6),
-                          ),
-                        ),
-                        child: const Text(
-                          'أداء ممتاز',
-                          style: TextStyle(
-                            color: AppColors.onlineGreen,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Tajawal',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '${monthlyEarnings.toStringAsFixed(2)} د.ل',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Tajawal',
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const Text(
-                    'صافي أرباح التوصيل المتراكمة المستحقة للسائق',
-                    style: TextStyle(
-                      color: Colors.white60,
-                      fontSize: 12,
-                      fontFamily: 'Tajawal',
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // 3-Pill Stat Row inside Monthly Card
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildMonthlyMiniStat(
-                          label: 'إجمالي الرحلات',
-                          value: '$monthlyTrips رحلة',
-                          icon: Icons.two_wheeler_rounded,
-                        ),
-                        Container(width: 1, height: 28, color: Colors.white12),
-                        _buildMonthlyMiniStat(
-                          label: 'المتوسط اليومي',
-                          value:
-                              '${(monthlyEarnings / 30).toStringAsFixed(1)} د.ل',
-                          icon: Icons.trending_up_rounded,
-                        ),
-                        Container(width: 1, height: 28, color: Colors.white12),
-                        _buildMonthlyMiniStat(
-                          label: 'مكافآت وحوافز',
-                          value: '+120.00 د.ل',
-                          icon: Icons.stars_rounded,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Monthly Target Progress Bar
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Text(
-                            'هدف الدخل الشهري (2,000 د.ل)',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                          Text(
-                            '72.5%',
-                            style: TextStyle(
-                              color: AppColors.onlineGreen,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: LinearProgressIndicator(
-                          value: (monthlyEarnings / 2000.0).clamp(0.0, 1.0),
-                          backgroundColor: Colors.white12,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.onlineGreen,
-                          ),
-                          minHeight: 7,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            // 3. CUSTODY SETTLEMENT & RECONCILIATION ACTION CARD
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: context.sc.surface,
+                color: context.dp.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: context.sc.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 8,
-                  ),
-                ],
+                border: Border.all(color: context.dp.line, width: 2),
               ),
               child: Column(
+                children: [
+                  row('الكاش اللي حصّلته', money(state.codCustody)),
+                  Divider(height: 1, color: context.dp.line),
+                  row('أجري من التوصيل', '− ${money(state.todayEarnings)}', valueColor: context.dp.successText),
+                  Divider(height: 1, color: context.dp.line),
+                  owesDriver
+                      ? row('مستحق لي من الشركة', money(state.payoutDue), strong: true, valueColor: context.dp.successText)
+                      : row('المطلوب توريده', money(state.requiredRemittance), strong: true),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: context.dp.navySoft, borderRadius: BorderRadius.circular(18)),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryLight,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.handshake_rounded,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'تسوية العهدة النقدية والأرباح',
-                            style: TextStyle(
-                              color: context.sc.textPrimary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                        ],
-                      ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.qr_code_rounded, size: 18),
-                        label: const Text(
-                          'كود التوريد',
-                          style: TextStyle(fontFamily: 'Tajawal', fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'تم إرسال طلب تسوية العهدة النقدية بنجاح إلى مشرف العمليات',
-                                  style: TextStyle(fontFamily: 'Tajawal'),
-                                ),
-                                backgroundColor: AppColors.onlineGreen,
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.receipt_long_rounded,
-                            size: 18,
-                          ),
-                          label: const Text(
-                            'طلب تسوية عهدة كاش',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.busyOrange,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'تم تحويل أرباحك إلى حساب المحفظة البنكية',
-                                  style: TextStyle(fontFamily: 'Tajawal'),
-                                ),
-                                backgroundColor: AppColors.primary,
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.account_balance_rounded,
-                            size: 18,
-                          ),
-                          label: const Text(
-                            'سحب الأرباح',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primary,
-                            side: const BorderSide(color: AppColors.primary),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  Icon(Icons.info_outline_rounded, color: context.dp.navyInk),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'التسوية تتم مع محاسب السائقين: تورّد له المبلغ المطلوب أو يصرفلك المستحق، ويتصفر الرصيد هنا بعد تسجيلها.',
+                      style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, height: 1.6, color: context.dp.navyInk),
+                    ),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 18),
-
-            // 4. RECENT FINANCIAL TRANSACTIONS LIST
-            Text(
-              'سجل التحصيلات والتسويات الأخيرة',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Tajawal',
-                color: context.sc.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              decoration: BoxDecoration(
-                color: context.sc.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: context.sc.border),
-              ),
-              child: Center(
-                child: Text(
-                  'لا توجد حركات تسوية أو تحصيل مسجلة حالياً',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: context.sc.textSecondary,
-                    fontFamily: 'Tajawal',
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildMonthlyMiniStat({
-    required String label,
-    required String value,
-    required IconData icon,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.white70, size: 16),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Tajawal',
-          ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white60,
-            fontSize: 12,
-            fontFamily: 'Tajawal',
-          ),
-        ),
-      ],
     );
   }
 
@@ -1628,26 +1077,22 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                   _buildProfileRow(
                     Icons.two_wheeler_outlined,
                     'نوع المركبة',
-                    'دراجة نارية سريعة',
+                    _vehicleLabel(state.profile?.vehicleType),
                   ),
                   Divider(height: 20, color: context.sc.borderSubtle),
                   _buildProfileRow(
-                    Icons.pin_outlined,
-                    'رقم لوحة المركبة',
-                    'طرابلس 12-58493',
+                    Icons.badge_outlined,
+                    'رقم الرخصة',
+                    (state.profile?.licenseNumber?.trim().isNotEmpty ?? false) ? state.profile!.licenseNumber! : 'غير مسجل',
                   ),
                   Divider(height: 20, color: context.sc.borderSubtle),
                   _buildProfileRow(
-                    Icons.verified_user_outlined,
-                    'حالة الحساب',
-                    'موثق ومعتمد رسمي',
+                    Icons.phone_outlined,
+                    'رقم الهاتف',
+                    (state.profile?.phone.trim().isNotEmpty ?? false) ? state.profile!.phone : 'غير مسجل',
                   ),
                   Divider(height: 20, color: context.sc.borderSubtle),
-                  _buildProfileRow(
-                    Icons.headset_mic_outlined,
-                    'دعم العمليات',
-                    '0910000002',
-                  ),
+                  _buildAppearanceSelector(),
                 ],
               ),
             ),
@@ -1686,6 +1131,43 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
             const SizedBox(height: 30),
           ],
         ),
+      ),
+    );
+  }
+
+  String _vehicleLabel(String? type) => switch (type) {
+        'motorcycle' => 'دراجة نارية',
+        'car' => 'سيارة',
+        'bicycle' => 'دراجة هوائية',
+        null || '' => 'غير مسجل',
+        _ => type,
+      };
+
+  /// المظهر: تلقائي حسب الهاتف، نهاري، أو ليلي (يُحفظ على الجهاز)
+  Widget _buildAppearanceSelector() {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeModeController.instance,
+      builder: (context, mode, _) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.dark_mode_outlined, size: 20, color: context.dp.muted),
+              const SizedBox(width: 10),
+              Text('المظهر', style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, fontWeight: FontWeight.w700, color: context.dp.ink)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(value: ThemeMode.system, label: Text('تلقائي', style: TextStyle(fontFamily: 'Tajawal'))),
+              ButtonSegment(value: ThemeMode.light, label: Text('نهاري', style: TextStyle(fontFamily: 'Tajawal'))),
+              ButtonSegment(value: ThemeMode.dark, label: Text('ليلي', style: TextStyle(fontFamily: 'Tajawal'))),
+            ],
+            selected: {mode},
+            onSelectionChanged: (s) => ThemeModeController.instance.set(s.first),
+          ),
+        ],
       ),
     );
   }

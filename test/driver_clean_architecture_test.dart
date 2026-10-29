@@ -96,6 +96,10 @@ class FakeOrdersRemoteDataSource implements OrdersRemoteDataSource {
   @override
   Future<Map<String, dynamic>> getActiveOrders() async {
     if (exceptionToThrow != null) throw exceptionToThrow!;
+    // مثل الخادم: الطلب المسلَّم لا يعود ضمن الطلبات النشطة
+    if (lastUpdatedStatus == 'delivered' || lastUpdatedStatus == 'completed') {
+      return {'status': 'success', 'data': []};
+    }
     return activeOrdersResponse ??
         {
           'status': 'success',

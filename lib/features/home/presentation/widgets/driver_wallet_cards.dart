@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sadeem_ui/sadeem_ui.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/driver_palette.dart';
 
-/// نافذتا السائق المالية: العهدة النقدية التي بيده، ومستحقاته من التوصيل،
-/// مع تقدمه نحو المكافأة التالية اليوم (برنامج الحوافز).
+/// مال السائق في سطر واحد واضح: المطلوب توريده (أو المستحق له) بخط كبير،
+/// وتحته كيف انحسب (ما حصّله ناقص أجره)، ثم تقدمه نحو المكافأة.
 class DriverWalletCards extends StatelessWidget {
   final double cashCustody;
   final double requiredRemittance;
@@ -27,106 +28,116 @@ class DriverWalletCards extends StatelessWidget {
     required this.rewardValueLabel,
   });
 
-  String _money(double v) => '${v.toStringAsFixed(2)} د.ل';
+  String _money(double v) => v.toStringAsFixed(2);
 
   @override
   Widget build(BuildContext context) {
+    final p = context.dp;
+    // أجره أكبر من النقد الذي بيده (طلبات مدفوعة إلكترونياً): المنصة تدفع له الفرق
+    final owesDriver = payoutDue > 0;
+    final headline = owesDriver ? payoutDue : requiredRemittance;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: SSpacing.screen),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: owesDriver ? p.successCard : p.navyCard,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  owesDriver ? 'مستحق لك من الشركة' : 'المطلوب توريده للشركة',
+                  style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, fontWeight: FontWeight.w500, color: p.onNavyMuted),
+                ),
+                Text.rich(
+                  TextSpan(children: [
+                    TextSpan(text: _money(headline), style: const TextStyle(fontSize: 38)),
+                    const TextSpan(text: ' د.ل', style: TextStyle(fontSize: 20)),
+                  ]),
+                  style: const TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.w800, color: Colors.white, height: 1.25),
+                ),
+                Text(
+                  'حصّلت ${_money(cashCustody)} · أجرك ${_money(earnings)}',
+                  style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, color: p.onNavyMuted),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _card(
-                  context,
-                  icon: Icons.account_balance_wallet_outlined,
-                  color: SColors.amber700,
-                  title: 'العهدة النقدية',
-                  value: _money(cashCustody),
-                  note: requiredRemittance > 0
-                      ? 'المطلوب توريده: ${_money(requiredRemittance)}'
-                      : 'لا يوجد مبلغ للتوريد',
-                ),
-              ),
-              const SizedBox(width: SSpacing.md),
-              Expanded(
-                child: _card(
-                  context,
-                  icon: Icons.payments_outlined,
-                  color: SColors.emerald700,
-                  title: 'مستحقاتي من التوصيل',
-                  value: _money(earnings),
-                  note: payoutDue > 0 ? 'تُصرف لك: ${_money(payoutDue)}' : 'تُخصم من التوريد عند التسوية',
-                ),
-              ),
+              Expanded(child: _tile(p, 'توصيلات اليوم', '$todayDeliveries')),
+              const SizedBox(width: 12),
+              Expanded(child: _tile(p, 'أجري', '${_money(earnings)} د.ل')),
             ],
           ),
           if (rewardEnabled && rewardEvery > 0) ...[
-            const SizedBox(height: SSpacing.md),
-            _rewardProgress(context),
+            const SizedBox(height: 12),
+            _rewardProgress(p),
           ],
         ],
       ),
     );
   }
 
-  Widget _card(BuildContext context, {required IconData icon, required Color color, required String title, required String value, required String note}) {
-    return SCard(
-      padding: const EdgeInsets.all(SSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Icon(icon, size: SIconSize.sm, color: color),
-            const SizedBox(width: SSpacing.xs),
-            Expanded(child: Text(title, style: STextStyles.label.copyWith(color: context.sc.textSecondary))),
-          ]),
-          const SizedBox(height: SSpacing.sm),
-          Text(value, style: STextStyles.title.copyWith(color: context.sc.textPrimary)),
-          const SizedBox(height: SSpacing.xs),
-          Text(note, style: STextStyles.caption.copyWith(color: context.sc.textSecondary)),
-        ],
-      ),
-    );
-  }
+  Widget _tile(DriverPalette p, String label, String value) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: p.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: p.line, width: 2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: TextStyle(fontFamily: 'Tajawal', fontSize: 14, fontWeight: FontWeight.w500, color: p.muted)),
+            Text(value, style: TextStyle(fontFamily: 'Tajawal', fontSize: 26, fontWeight: FontWeight.w800, color: p.ink)),
+          ],
+        ),
+      );
 
-  Widget _rewardProgress(BuildContext context) {
+  Widget _rewardProgress(DriverPalette p) {
     final doneInCycle = (rewardEvery - rewardRemaining).clamp(0, rewardEvery);
     final nextIsReward = rewardRemaining <= 0;
-    return SCard(
-      color: context.sc.brandTint,
-      padding: const EdgeInsets.all(SSpacing.md),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: p.readySoft, borderRadius: BorderRadius.circular(18)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            Icon(Icons.emoji_events_outlined, size: SIconSize.sm, color: context.sc.brandText),
-            const SizedBox(width: SSpacing.xs),
+            Icon(Icons.emoji_events_outlined, size: 22, color: p.readyText),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 nextIsReward
-                    ? 'توصيلتك القادمة مكافأة: $rewardValueLabel'
-                    : 'باقي $rewardRemaining توصيلة للمكافأة ($rewardValueLabel)',
-                style: STextStyles.label.copyWith(color: context.sc.textPrimary, fontWeight: FontWeight.w700),
+                    ? 'توصيلتك الجاية مكافأة: $rewardValueLabel'
+                    : 'باقيلك $rewardRemaining توصيلة للمكافأة ($rewardValueLabel)',
+                style: TextStyle(fontFamily: 'Tajawal', fontSize: 16, fontWeight: FontWeight.w800, color: p.readyText),
               ),
             ),
           ]),
-          const SizedBox(height: SSpacing.sm),
+          const SizedBox(height: 10),
           ClipRRect(
-            borderRadius: BorderRadius.circular(SRadius.pill),
+            borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
               value: nextIsReward ? 1 : doneInCycle / rewardEvery,
-              minHeight: 8,
-              backgroundColor: context.sc.surfaceMuted,
-              color: SColors.amber500,
+              minHeight: 10,
+              backgroundColor: p.surface,
+              color: AppColors.busyOrange,
             ),
           ),
-          const SizedBox(height: SSpacing.xs),
-          Text('توصيلات اليوم: $todayDeliveries • العدّاد يُصفَّر يومياً',
-              style: STextStyles.caption.copyWith(color: context.sc.textSecondary)),
+          const SizedBox(height: 6),
+          Text(
+            'توصيلات اليوم: $todayDeliveries · العدّاد يرجع صفر كل يوم',
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 14, color: p.readyText),
+          ),
         ],
       ),
     );

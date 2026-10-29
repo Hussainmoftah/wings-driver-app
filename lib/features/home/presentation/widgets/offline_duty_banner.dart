@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'package:sadeem_ui/sadeem_ui.dart';
+import '../../../../core/theme/driver_palette.dart';
 
+/// قبل بدء الدوام: حالة واضحة وزر واحد كبير.
 class OfflineDutyBanner extends StatelessWidget {
   final VoidCallback onGoOnline;
 
@@ -9,69 +10,48 @@ class OfflineDutyBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = context.dp;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: context.sc.surface,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: context.sc.border),
+        color: p.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: p.line, width: 2),
       ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: context.sc.surfaceMuted,
-              shape: BoxShape.circle,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(color: p.surfaceMuted, borderRadius: BorderRadius.circular(999)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(radius: 5, backgroundColor: p.muted),
+                const SizedBox(width: 8),
+                Text('غير متصل', style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, fontWeight: FontWeight.w700, color: p.body)),
+              ],
             ),
-            child: Icon(
-              Icons.nightlight_round,
-              color: context.sc.textSecondary,
-              size: 36,
-            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'ما تستلمش طلبات وأنت غير متصل.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 17, height: 1.6, color: p.body),
           ),
           const SizedBox(height: 14),
-          Text(
-            'أنت خارج الوردية حالياً',
-            style: TextStyle(
-              color: context.sc.textPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Tajawal',
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'قم بتفعيل زر الاتصال بالأعلى لبدء استقبال طلبات التوصيل وزيادة أرباحك اليومية.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: context.sc.textSecondary,
-              fontSize: 13,
-              fontFamily: 'Tajawal',
-            ),
-          ),
-          const SizedBox(height: 18),
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 64,
             child: ElevatedButton.icon(
               onPressed: onGoOnline,
-              icon: const Icon(Icons.power_settings_new_rounded, size: 20),
-              label: const Text(
-                'بدء العمل والاتصال الآن',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Tajawal',
-                ),
-              ),
+              icon: const Icon(Icons.power_settings_new_rounded, size: 26),
+              label: const Text('ابدأ الدوام', style: TextStyle(fontFamily: 'Tajawal', fontSize: 21, fontWeight: FontWeight.w800)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.onlineGreen,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
               ),
             ),
           ),

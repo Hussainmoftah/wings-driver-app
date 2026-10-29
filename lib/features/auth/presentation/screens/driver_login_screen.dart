@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/network/api_constants.dart';
 import '../../../../core/errors/exceptions.dart';
+import '../../../../core/theme/driver_palette.dart';
 import '../../../home/presentation/screens/driver_home_screen.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -29,7 +30,6 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
 
   late final AuthRepository _authRepository;
   bool _obscurePassword = true;
-  bool _rememberMe = true;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -112,35 +112,35 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
     }
   }
 
-  void _fillDriver(String email, String password) {
-    _emailController.text = email;
-    _passwordController.text = password;
-    setState(() {});
-  }
+
+  // تصميم عالي التباين بالوضعين النهاري والليلي: رأس كحلي، حقول كبيرة، وزر واحد واضح
+  DriverPalette get _p => context.dp;
+  Color get _navy => _p.navy;
+  Color get _ink => _p.ink;
+  Color get _muted => _p.muted;
+  Color get _line => _p.fieldBorder;
+  Color get _ground => _p.ground;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SColors.slate900,
+      backgroundColor: _ground,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 28),
-                  _buildLoginForm(),
-                  const SizedBox(height: 24),
-                  _buildQuickDemoPills(),
-                  const SizedBox(height: 28),
-                  _buildFooterSection(),
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
+                child: _buildLoginForm(),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+                child: _buildJoinBox(),
+              ),
+            ],
           ),
         ),
       ),
@@ -148,491 +148,196 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
   }
 
   Widget _buildHeader() {
-    return Column(
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [SColors.brand, SColors.sky400],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(22),
-            boxShadow: [
-              BoxShadow(
-                color: SColors.brand.withValues(alpha: 0.4),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: const Center(
-            child: Icon(
-              Icons.two_wheeler_rounded,
-              color: Colors.white,
-              size: 42,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'كابتن سديم',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Tajawal',
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Text(
-            'بوابة كباتن التوصيل والأسطول الذكي',
-            style: TextStyle(
-              color: SColors.slate400,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Tajawal',
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLoginForm() {
     return Container(
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: SColors.slate800,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: SColors.slate700),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: _p.navyCard,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'تسجيل الدخول',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Tajawal',
-              ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'أدخل بيانات حساب الكابتن لبدء استقبال الطلبات',
-              style: TextStyle(
-                color: SColors.slate400,
-                fontSize: 12,
-                fontFamily: 'Tajawal',
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            if (_errorMessage != null) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: SColors.red500.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: SColors.red500.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.error_outline_rounded,
-                      color: SColors.red500,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _errorMessage!,
-                        style: const TextStyle(
-                          color: SColors.red300,
-                          fontSize: 12,
-                          fontFamily: 'Tajawal',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            // Email field
-            const Text(
-              'البريد الإلكتروني / اسم المستخدم',
-              style: TextStyle(
-                color: SColors.slate300,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Tajawal',
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              style: const TextStyle(
-                color: Colors.white,
-                fontFamily: 'Tajawal',
-              ),
-              decoration: InputDecoration(
-                hintText: 'driver1@wings.ly',
-                hintStyle: const TextStyle(
-                  color: SColors.slate500,
-                  fontSize: 13,
-                ),
-                prefixIcon: const Icon(
-                  Icons.email_outlined,
-                  color: SColors.slate500,
-                  size: 20,
-                ),
-                filled: true,
-                fillColor: SColors.slate900,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: SColors.slate700),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: SColors.slate700),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(
-                    color: SColors.brand,
-                    width: 1.5,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) {
-                  return 'يرجى إدخال البريد الإلكتروني';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Password field
-            const Text(
-              'كلمة المرور',
-              style: TextStyle(
-                color: SColors.slate300,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Tajawal',
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: _obscurePassword,
-              style: const TextStyle(
-                color: Colors.white,
-                fontFamily: 'Tajawal',
-              ),
-              decoration: InputDecoration(
-                hintText: '••••••••',
-                hintStyle: const TextStyle(
-                  color: SColors.slate500,
-                  fontSize: 13,
-                ),
-                prefixIcon: const Icon(
-                  Icons.lock_outline_rounded,
-                  color: SColors.slate500,
-                  size: 20,
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: SColors.slate500,
-                    size: 20,
-                  ),
-                  onPressed: () =>
-                      setState(() => _obscurePassword = !_obscurePassword),
-                ),
-                filled: true,
-                fillColor: SColors.slate900,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: SColors.slate700),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: SColors.slate700),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(
-                    color: SColors.brand,
-                    width: 1.5,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'يرجى إدخال كلمة المرور';
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-
-            // Remember me & Forgot password
-            Row(
-              mainAxisAlignment: conscienceAlignment(),
-              children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Checkbox(
-                        value: _rememberMe,
-                        onChanged: (v) =>
-                            setState(() => _rememberMe = v ?? true),
-                        activeColor: SColors.brand,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        side: const BorderSide(color: SColors.slate500),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'تذكرني',
-                      style: TextStyle(
-                        color: SColors.slate400,
-                        fontSize: 12,
-                        fontFamily: 'Tajawal',
-                      ),
-                    ),
-                  ],
-                ),
-                TextButton(
-                  onPressed: _showForgotPasswordDialog,
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: const Text(
-                    'نسيت كلمة المرور؟',
-                    style: TextStyle(
-                      color: SColors.sky400,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Tajawal',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Submit Button
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: SColors.brand,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: SColors.brand.withValues(alpha: 0.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 4,
-                  shadowColor: SColors.brand.withValues(alpha: 0.4),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.login_rounded, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'تسجيل الدخول وبدء الوردية',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Tajawal',
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  MainAxisAlignment conscienceAlignment() => MainAxisAlignment.spaceBetween;
-
-  Widget _buildQuickDemoPills() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: SColors.slate800,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SColors.slate700),
-      ),
+      padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 36, 24, 36),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.touch_app_rounded, color: SColors.sky400, size: 16),
-              SizedBox(width: 6),
-              Text(
-                'حسابات كباتن تجريبية سريعة (بنقرة واحدة):',
-                style: TextStyle(
-                  color: SColors.slate400,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Tajawal',
-                ),
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                child: const Icon(Icons.two_wheeler_rounded, color: Color(0xFF283A75), size: 30),
+              ),
+              const SizedBox(width: 12),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('سديم كابتن', style: TextStyle(fontFamily: 'Tajawal', fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white)),
+                  Text('تطبيق مناديب التوصيل', style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, color: Color(0xFFDCE2F5))),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildDemoChip(
-                name: 'محمود (دراجة)',
-                email: 'driver1@wings.ly',
-                isSelected: _emailController.text == 'driver1@wings.ly',
-              ),
-              _buildDemoChip(
-                name: 'عبد السلام (سيارة)',
-                email: 'driver2@wings.ly',
-                isSelected: _emailController.text == 'driver2@wings.ly',
-              ),
-              _buildDemoChip(
-                name: 'فرج (دراجة)',
-                email: 'driver3@wings.ly',
-                isSelected: _emailController.text == 'driver3@wings.ly',
-              ),
-            ],
+          const SizedBox(height: 16),
+          const Text(
+            'أهلاً بيك، سجّل دخولك وابدأ دوامك.',
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 18, height: 1.6, color: Colors.white),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDemoChip({
-    required String name,
-    required String email,
-    required bool isSelected,
-  }) {
-    return GestureDetector(
-      onTap: () => _fillDriver(email, 'password'),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? SColors.brand : SColors.slate900,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? SColors.sky400 : SColors.slate600,
+  InputDecoration _fieldDecoration({String? hint, Widget? suffix}) {
+    OutlineInputBorder border(Color c, [double w = 2]) =>
+        OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: c, width: w));
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(fontFamily: 'Tajawal', color: _muted, fontSize: 16),
+      filled: true,
+      fillColor: _p.field,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      suffixIcon: suffix,
+      enabledBorder: border(_line),
+      focusedBorder: border(_navy, 2.5),
+      errorBorder: border(SColors.red600),
+      focusedErrorBorder: border(SColors.red600, 2.5),
+      errorStyle: TextStyle(fontFamily: 'Tajawal', fontSize: 14, color: _p.errorText),
+    );
+  }
+
+  Widget _label(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(text, style: TextStyle(fontFamily: 'Tajawal', fontSize: 16, fontWeight: FontWeight.w700, color: _ink)),
+      );
+
+  Widget _buildLoginForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_errorMessage != null) ...[
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: _p.errorSoft,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline_rounded, color: _p.errorText),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(_errorMessage!, style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, fontWeight: FontWeight.w700, color: _p.errorText)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+          _label('البريد الإلكتروني'),
+          TextFormField(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            textDirection: TextDirection.ltr,
+            textInputAction: TextInputAction.next,
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 17, color: _ink),
+            decoration: _fieldDecoration(hint: 'driver@sadeem.ly'),
+            validator: (v) {
+              final value = v?.trim() ?? '';
+              if (value.isEmpty) return 'اكتب بريدك الإلكتروني';
+              if (!value.contains('@')) return 'البريد الإلكتروني غير صحيح';
+              return null;
+            },
           ),
-        ),
-        child: Text(
-          name,
-          style: TextStyle(
-            color: isSelected ? Colors.white : SColors.slate300,
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            fontFamily: 'Tajawal',
+          const SizedBox(height: 18),
+          _label('كلمة المرور'),
+          TextFormField(
+            controller: _passwordController,
+            obscureText: _obscurePassword,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) => _isLoading ? null : _handleLogin(),
+            style: TextStyle(fontFamily: 'Tajawal', fontSize: 17, color: _ink),
+            decoration: _fieldDecoration(
+              suffix: IconButton(
+                tooltip: _obscurePassword ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
+                icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: _muted),
+                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+              ),
+            ),
+            validator: (v) => (v == null || v.isEmpty) ? 'اكتب كلمة المرور' : null,
           ),
-        ),
+          const SizedBox(height: 24),
+          SizedBox(
+            height: 58,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _handleLogin,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _navy,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: _navy.withValues(alpha: 0.6),
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: _isLoading
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
+                  : const Text('تسجيل الدخول', style: TextStyle(fontFamily: 'Tajawal', fontSize: 19, fontWeight: FontWeight.w800)),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Center(
+            child: TextButton(
+              onPressed: _showForgotPasswordDialog,
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48), foregroundColor: _navy),
+              child: const Text('نسيت كلمة المرور؟', style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, fontWeight: FontWeight.w700)),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildFooterSection() {
-    return Column(
-      children: [
-        TextButton(
-          onPressed: _showJoinFleetSheet,
-          child: const Text(
-            'تريد الانضمام لأسطول سديم ككابتن جديد؟ قدم طلبك',
-            style: TextStyle(
-              color: SColors.sky400,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Tajawal',
-              decoration: TextDecoration.underline,
+  Widget _buildJoinBox() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: _p.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _p.line, width: 2),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(color: _p.cashSoft, borderRadius: BorderRadius.circular(12)),
+            child: Icon(Icons.person_add_alt_1_outlined, color: _p.cashText),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('مش مسجل معانا؟', style: TextStyle(fontFamily: 'Tajawal', fontSize: 16, fontWeight: FontWeight.w700, color: _ink)),
+                Text('قدّم طلبك كمندوب توصيل في دقيقة', style: TextStyle(fontFamily: 'Tajawal', fontSize: 14, color: _muted)),
+              ],
             ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.headset_mic_rounded, color: SColors.slate500, size: 14),
-            SizedBox(width: 4),
-            Text(
-              'غرفة دعم العمليات: 0910000002',
-              style: TextStyle(
-                color: SColors.slate500,
-                fontSize: 12,
-                fontFamily: 'Tajawal',
+          const SizedBox(width: 8),
+          SizedBox(
+            height: 46,
+            child: ElevatedButton(
+              onPressed: _showJoinFleetSheet,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB4401A),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
+              child: const Text('قدّم الآن', style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, fontWeight: FontWeight.w800)),
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -640,7 +345,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: context.dp.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: const [
@@ -656,11 +361,11 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
             ),
           ],
         ),
-        content: const Text(
+        content: Text(
           'لأسباب أمنية وتشغيلية خاصة بأسطول السائقين، يتم إعادة تعيين كلمة المرور بالتواصل المباشر مع مشرف العمليات.',
           style: TextStyle(
             fontSize: 13,
-            color: SColors.slate600,
+            color: context.dp.muted,
             fontFamily: 'Tajawal',
           ),
         ),
@@ -696,7 +401,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
   void _showJoinFleetSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.dp.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -774,9 +479,9 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                fontSize: 12,
-                color: SColors.slate700,
+              style: TextStyle(
+                fontSize: 15,
+                color: context.dp.body,
                 fontFamily: 'Tajawal',
               ),
             ),
