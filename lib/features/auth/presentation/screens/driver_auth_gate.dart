@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/errors/exceptions.dart';
+import '../../../../core/notifications/push_notifications.dart';
 import '../../../home/presentation/screens/driver_home_screen.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -83,6 +84,8 @@ class _DriverAuthGateState extends State<DriverAuthGate> {
   }
 
   void _navigateToHome() {
+    // جلسة محفوظة: تسجيل الجهاز للإشعارات (يفشل بصمت دون اتصال)
+    PushNotifications.instance.registerDevice();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const DriverHomeScreen()),
     );

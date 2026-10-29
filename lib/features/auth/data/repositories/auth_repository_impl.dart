@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/api_constants.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/notifications/push_notifications.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 
@@ -28,6 +29,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final token = data['token'] as String?;
     if (token != null && token.isNotEmpty) {
       await DioClient.saveSession(token, data['refresh_token'] as String?);
+      PushNotifications.instance.registerDevice();
     }
 
     return data;
@@ -35,6 +37,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
+    // قبل إلغاء الجلسة: حذف الجهاز من الخادم يحتاج توكن الدخول
+    await PushNotifications.instance.unregisterDevice();
+
     // إلغاء الجلسة في الخادم (الوصول + التجديد)، ثم محلياً حتى لو فشل الاتصال
     try {
       if (await hasValidToken()) {

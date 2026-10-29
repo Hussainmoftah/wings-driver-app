@@ -20,6 +20,9 @@ class ApiConstants {
   static const String refreshToken = '/auth/refresh';
   static const String logout = '/logout';
 
+  // إشعارات الدفع: توكن الجهاز (FCM)
+  static const String deviceToken = '/notifications/device-token';
+
   // Driver Profile & Shift Status
   static const String driverProfile = '/driver/profile';
   static const String driverStatus = '/driver/status';
