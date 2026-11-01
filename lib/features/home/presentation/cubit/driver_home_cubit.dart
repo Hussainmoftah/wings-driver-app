@@ -265,10 +265,13 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
 
       emit(state.copyWith(profile: mergedProfile, isUpdatingStatus: false));
 
-      if (isOnline) {
+      // بدون بثّ الموقع لا يظهر السائق المتصل في الإسناد (يُشترط موقع حديث)
+      if (mergedProfile.isOnline) {
         _startPolling();
+        await startLocationTracking();
       } else {
         _pollTimer?.cancel();
+        await stopLocationTracking();
       }
     } catch (e) {
       debugPrint('⚠️ [Driver Duty Toggle] Error: $e');
@@ -344,7 +347,10 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
       updateLocation(
         position.latitude,
         position.longitude,
-        heading: position.heading,
+        // الـ GPS يعطي -1 حين لا يعرف الاتجاه (السائق واقف)، والخادم يقبل 0..360 فقط
+        heading: position.heading >= 0 && position.heading <= 360
+            ? position.heading
+            : null,
         accuracy: position.accuracy,
       ),
     );
