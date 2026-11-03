@@ -159,11 +159,10 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
         children: [
           Row(
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                child: const Icon(Icons.two_wheeler_rounded, color: Color(0xFF283A75), size: 30),
+              // شعار سديم (نفس أيقونة التطبيق على الهاتف)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset('assets/branding/app_icon.png', width: 56, height: 56, semanticLabel: 'شعار سديم'),
               ),
               const SizedBox(width: 12),
               const Column(
