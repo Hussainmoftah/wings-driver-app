@@ -17,6 +17,10 @@ class DriverProfileModel {
   final int? activeOrderId;
   final String? activeOrderStatus;
 
+  /// متوسط تقييمات الزبائن، أو null لكابتن جديد لم يُقيَّم بعد
+  final double? rating;
+  final int ratingsCount;
+
   DriverProfileModel({
     required this.userId,
     required this.name,
@@ -35,6 +39,8 @@ class DriverProfileModel {
     this.hasActiveOrder = false,
     this.activeOrderId,
     this.activeOrderStatus,
+    this.rating,
+    this.ratingsCount = 0,
   });
 
   factory DriverProfileModel.fromJson(Map<String, dynamic> json) {
@@ -64,6 +70,8 @@ class DriverProfileModel {
       hasActiveOrder: json['has_active_order'] == true,
       activeOrderId: json['active_order_id'],
       activeOrderStatus: json['active_order_status'],
+      rating: double.tryParse(json['rating']?.toString() ?? ''),
+      ratingsCount: int.tryParse(json['ratings_count']?.toString() ?? '') ?? 0,
     );
   }
 
@@ -93,6 +101,8 @@ class DriverProfileModel {
       hasActiveOrder: hasActiveOrder ?? this.hasActiveOrder,
       activeOrderId: activeOrderId ?? this.activeOrderId,
       activeOrderStatus: activeOrderStatus ?? this.activeOrderStatus,
+      rating: rating,
+      ratingsCount: ratingsCount,
     );
   }
 }

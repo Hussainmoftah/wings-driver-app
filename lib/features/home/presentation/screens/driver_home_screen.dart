@@ -1031,13 +1031,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.star_rounded,
-                          color: SColors.amber500,
+                          state.profile?.rating == null
+                              ? Icons.auto_awesome_rounded
+                              : Icons.star_rounded,
+                          color: state.profile?.rating == null
+                              ? SColors.emerald500
+                              : SColors.amber500,
                           size: 18,
                         ),
                         SizedBox(width: 4),
                         Text(
-                          'تقييم الكابتن: 4.9 ★ (128 تقييم)',
+                          // بلا تقييم افتراضي: الكابتن الجديد يظهر "جديد" حتى أول تقييم من زبون
+                          state.profile?.rating == null
+                              ? 'كابتن جديد'
+                              : 'تقييمك: ${state.profile!.rating!.toStringAsFixed(1)} ★ (${state.profile!.ratingsCount} تقييم)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
