@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/legal_links.dart';
 import '../widgets/driver_wallet_cards.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
@@ -1104,7 +1105,24 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton.icon(
+                  onPressed: () => LegalLinks.open(LegalLinks.terms),
+                  icon: const Icon(Icons.description_outlined, size: 18),
+                  label: const Text('شروط السائق', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.w700)),
+                ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: () => LegalLinks.open(LegalLinks.privacy),
+                  icon: const Icon(Icons.policy_outlined, size: 18),
+                  label: const Text('سياسة الخصوصية', style: TextStyle(fontFamily: 'Tajawal', fontWeight: FontWeight.w700)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
 
             // Logout Button
             SizedBox(

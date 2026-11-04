@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/network/api_constants.dart';
 import '../../../../core/errors/exceptions.dart';
+import '../../../../core/utils/legal_links.dart';
 import '../../../../core/theme/driver_palette.dart';
 import '../../../home/presentation/screens/driver_home_screen.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -289,6 +290,8 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
               child: const Text('نسيت كلمة المرور؟', style: TextStyle(fontFamily: 'Tajawal', fontSize: 15, fontWeight: FontWeight.w700)),
             ),
           ),
+          const SizedBox(height: 4),
+          LegalConsentText(linkColor: _navy, textColor: _p.muted),
         ],
       ),
     );
