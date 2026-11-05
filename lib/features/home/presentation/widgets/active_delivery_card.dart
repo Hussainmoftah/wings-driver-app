@@ -33,6 +33,8 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
   DriverPalette get p => context.dp;
 
   bool get _isReady => const ['ready', 'ready_for_pickup'].contains(o.status);
+  // المطعم لم يضغط «جاهز» بعد: السائق يستطيع الاستلام إن سلّمه المطعم الطلب (يصبح جاهزاً تلقائياً)
+  bool get _isPreparing => const ['accepted', 'accepted_start_prep', 'preparing'].contains(o.status);
   bool get _isOnTheWay => const ['on_the_way', 'on_delivery'].contains(o.status);
 
   String _money(double v) => v.toStringAsFixed(2);
@@ -310,11 +312,11 @@ class _ActiveDeliveryCardState extends State<ActiveDeliveryCard> {
       bg = AppColors.onlineGreen;
       icon = Icons.check_rounded;
       label = o.amountToCollect > 0 ? 'استلمت ${_money(o.amountToCollect)} وسلّمت الطلب' : 'سلّمت الطلب';
-    } else if (_isReady) {
+    } else if (_isReady || _isPreparing) {
       next = 'on_the_way';
       bg = p.navy;
       icon = Icons.arrow_back_rounded;
-      label = 'استلمت الطلب، انطلق';
+      label = _isReady ? 'استلمت الطلب، انطلق' : 'استلمت الطلب من المطعم، انطلق';
     } else {
       bg = p.disabled;
       icon = Icons.hourglass_top_rounded;
