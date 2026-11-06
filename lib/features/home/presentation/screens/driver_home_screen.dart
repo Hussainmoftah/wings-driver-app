@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/legal_links.dart';
+import '../../../../core/utils/support_contacts.dart';
 import '../widgets/driver_wallet_cards.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
@@ -332,7 +333,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                             ),
                           ),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () => SupportContacts.call(context),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: SColors.googleBlue,
                               padding: const EdgeInsets.symmetric(
