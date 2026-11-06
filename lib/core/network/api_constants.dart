@@ -8,7 +8,7 @@ class ApiConstants {
   ///   flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api  (iOS / ويب)
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://169.58.30.135.sslip.io/api',
+    defaultValue: 'https://api.alsadeem.com.ly/api',
   );
 
   /// صفحة التقديم كمندوب توصيل (نفس رابط الإعلانات، والمصدر يميّز من جاء من التطبيق)
