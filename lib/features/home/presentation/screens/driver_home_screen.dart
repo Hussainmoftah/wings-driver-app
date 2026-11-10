@@ -11,6 +11,8 @@ import '../cubit/driver_home_cubit.dart';
 import '../cubit/driver_home_state.dart';
 import '../../../notifications/screens/driver_notifications_screen.dart';
 import '../widgets/active_delivery_card.dart';
+import '../widgets/delivery_photo_sheet.dart';
+import '../widgets/pickup_count_sheet.dart';
 import '../../../../core/theme/driver_palette.dart';
 import '../../../../core/theme/theme_mode_controller.dart';
 import '../../../orders/data/driver_order_model.dart';
@@ -236,9 +238,24 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                       ActiveDeliveryCard(
                         order: state.activeOrder!,
                         isUpdating: state.isUpdatingStatus,
-                        onUpdateStatus: (newStatus, orderId) {
+                        onUpdateStatus: (newStatus, orderId) async {
+                          final order = state.activeOrder!;
+                          // الاستلام: يعدّ القطع والمشروبات، والتسليم: يصوّر الطلب في الكيس
                           if (newStatus == 'on_the_way') {
-                            setState(() => _mapFocus = MapFocusTarget.customer);
+                            final left = await PickupCountSheet.show(
+                              context,
+                              order,
+                            );
+                            if (left && mounted) {
+                              setState(
+                                () => _mapFocus = MapFocusTarget.customer,
+                              );
+                            }
+                            return;
+                          }
+                          if (newStatus == 'delivered') {
+                            await DeliveryPhotoSheet.show(context, order);
+                            return;
                           }
                           context.read<DriverHomeCubit>().updateOrderStatus(
                             newStatus,

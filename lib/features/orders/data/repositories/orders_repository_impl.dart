@@ -1,3 +1,4 @@
+import '../handover_proof.dart';
 import '../../data/driver_order_model.dart';
 import '../../domain/repositories/orders_repository.dart';
 import '../datasources/orders_remote_data_source.dart';
@@ -29,11 +30,15 @@ class OrdersRepositoryImpl implements OrdersRepository {
     int orderId,
     String newStatus, {
     String? reason,
+    PickupCount? pickup,
+    DeliveryProof? delivery,
   }) async {
     await _remoteDataSource.updateOrderStatus(
       orderId,
       newStatus,
       reason: reason,
+      pickup: pickup,
+      delivery: delivery,
     );
   }
 }

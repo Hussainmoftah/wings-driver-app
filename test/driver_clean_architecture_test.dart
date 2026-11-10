@@ -10,6 +10,7 @@ import 'package:wings_driver/features/home/presentation/cubit/driver_home_state.
 import 'package:wings_driver/features/location/data/datasources/location_remote_data_source.dart';
 import 'package:wings_driver/features/location/data/repositories/location_repository_impl.dart';
 import 'package:wings_driver/features/orders/data/datasources/orders_remote_data_source.dart';
+import 'package:wings_driver/features/orders/data/handover_proof.dart';
 import 'package:wings_driver/features/orders/data/repositories/orders_repository_impl.dart';
 import 'package:wings_driver/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:wings_driver/features/profile/data/repositories/profile_repository_impl.dart';
@@ -92,6 +93,8 @@ class FakeOrdersRemoteDataSource implements OrdersRemoteDataSource {
   int? lastUpdatedOrderId;
   String? lastUpdatedStatus;
   String? lastUpdatedReason;
+  PickupCount? lastPickup;
+  DeliveryProof? lastDelivery;
 
   @override
   Future<Map<String, dynamic>> getActiveOrders() async {
@@ -146,10 +149,12 @@ class FakeOrdersRemoteDataSource implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> updateOrderStatus(int orderId, String newStatus, {String? reason}) async {
+  Future<Map<String, dynamic>> updateOrderStatus(int orderId, String newStatus, {String? reason, PickupCount? pickup, DeliveryProof? delivery}) async {
     lastUpdatedOrderId = orderId;
     lastUpdatedStatus = newStatus;
     lastUpdatedReason = reason;
+    lastPickup = pickup;
+    lastDelivery = delivery;
     if (exceptionToThrow != null) throw exceptionToThrow!;
     return {'status': 'success', 'message': 'تم تحديث الحالة بنجاح'};
   }
@@ -480,6 +485,60 @@ void main() {
       expect(cubit.state.todayEarnings, equals(initialEarnings + 10.0));
       expect(cubit.state.completedOrdersCount, equals(initialCount + 1));
 
+      await cubit.close();
+    });
+  });
+  group("قفل العهدة وإثبات الاستلام", () {
+    test("المندوب الموقوف بسبب العهدة لا يظهر متصلاً ويرى السبب", () async {
+      final profileSource = FakeProfileRemoteDataSource();
+      final cubit = DriverHomeCubit(
+        profileRepository: ProfileRepositoryImpl(remoteDataSource: profileSource),
+        ordersRepository: OrdersRepositoryImpl(remoteDataSource: FakeOrdersRemoteDataSource()),
+        authRepository: AuthRepositoryImpl(remoteDataSource: FakeAuthRemoteDataSource()),
+      );
+      await cubit.loadHomeData();
+      await cubit.toggleDuty(false);
+      expect(cubit.state.profile?.isOnline, isFalse);
+
+      profileSource.exceptionToThrow = const ServerException(
+        message: "عندك كاش من طلبات مرّ عليه أكثر من 24 ساعة ولم يُسلَّم (عليك 52.00 د.ل).",
+        statusCode: 423,
+      );
+      await cubit.toggleDuty(true);
+
+      expect(profileSource.lastTargetStatus, equals("online"));
+      expect(cubit.state.profile?.isOnline, isFalse);
+      expect(cubit.state.isUpdatingStatus, isFalse);
+      expect(cubit.state.errorMessage, contains("عليك 52.00 د.ل"));
+      await cubit.close();
+    });
+
+    test("عدد القطع يصل للخادم مع الانطلاق، وعدم التطابق يرجع لنافذة العدّ", () async {
+      final ordersSource = FakeOrdersRemoteDataSource();
+      final cubit = DriverHomeCubit(
+        profileRepository: ProfileRepositoryImpl(remoteDataSource: FakeProfileRemoteDataSource()),
+        ordersRepository: OrdersRepositoryImpl(remoteDataSource: ordersSource),
+        authRepository: AuthRepositoryImpl(remoteDataSource: FakeAuthRemoteDataSource()),
+      );
+      await cubit.loadHomeData();
+
+      final ok = await cubit.updateOrderStatus("on_the_way", 101, pickup: const PickupCount(pieces: 4, drinks: 1));
+      expect(ok, isTrue);
+      expect(ordersSource.lastPickup?.pieces, equals(4));
+      expect(ordersSource.lastPickup?.drinks, equals(1));
+
+      ordersSource.exceptionToThrow = const PickupMismatchException(
+        message: "العدد لا يطابق الطلب.",
+        expectedPieces: 5,
+        expectedDrinks: 1,
+        items: [],
+      );
+      await expectLater(
+        cubit.updateOrderStatus("on_the_way", 101, pickup: const PickupCount(pieces: 4, drinks: 1)),
+        throwsA(isA<PickupMismatchException>()),
+      );
+      expect(cubit.state.isUpdatingStatus, isFalse);
+      expect(cubit.state.errorMessage, isNull);
       await cubit.close();
     });
   });

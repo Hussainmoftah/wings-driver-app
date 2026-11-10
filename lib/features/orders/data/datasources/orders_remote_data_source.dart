@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/api_constants.dart';
 import '../../../../core/network/dio_client.dart';
+import '../handover_proof.dart';
 
 abstract class OrdersRemoteDataSource {
   Future<Map<String, dynamic>> getActiveOrders();
@@ -10,6 +11,8 @@ abstract class OrdersRemoteDataSource {
     int orderId,
     String newStatus, {
     String? reason,
+    PickupCount? pickup,
+    DeliveryProof? delivery,
   });
 }
 
@@ -105,11 +108,34 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     int orderId,
     String newStatus, {
     String? reason,
+    PickupCount? pickup,
+    DeliveryProof? delivery,
   }) async {
     try {
+      final fields = <String, dynamic>{
+        'status': newStatus,
+        'reason': ?reason,
+        if (pickup != null) ...{
+          'pieces_count': pickup.pieces,
+          'drinks_count': pickup.drinks,
+          'shortage_note': ?pickup.shortageNote,
+        },
+        if (delivery != null) ...{
+          'photo_skip_reason': ?delivery.skipReason,
+          'latitude': ?delivery.latitude,
+          'longitude': ?delivery.longitude,
+        },
+      };
+      final photo = delivery?.photo;
       final response = await _dio.post(
         ApiConstants.updateOrderStatus(orderId),
-        data: {'status': newStatus, 'reason': ?reason},
+        // صورة الكيس تُرسل ملفاً مع الحقول، وإلا فالطلب JSON كالسابق
+        data: photo == null
+            ? fields
+            : FormData.fromMap({
+                ...fields,
+                'photo': MultipartFile.fromBytes(photo, filename: 'bag.jpg'),
+              }),
       );
 
       if (response.statusCode == 200 && response.data != null) {
@@ -120,6 +146,12 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
         throw ForbiddenException(
           message:
               response.data?['message'] ?? 'غير مصرح لك بتحديث حالة هذا الطلب.',
+        );
+      } else if (response.statusCode == 422 &&
+          response.data is Map &&
+          response.data['code'] == 'pickup_count_mismatch') {
+        throw PickupMismatchException.fromResponse(
+          Map<String, dynamic>.from(response.data as Map),
         );
       } else if (response.statusCode == 422) {
         throw ValidationException(

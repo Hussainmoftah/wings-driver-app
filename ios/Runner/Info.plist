@@ -66,6 +66,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>نحتاج الكاميرا لتصوير الطلب في الكيس عند تسليمه للزبون، إثباتاً لتسليمه سليماً.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>نحتاج إلى موقعك لعرض مسار التوصيل وإظهار موقعك للزبون أثناء تنفيذ الطلب.</string>
 </dict>

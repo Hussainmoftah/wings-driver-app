@@ -1,3 +1,4 @@
+import '../../data/handover_proof.dart';
 import '../../data/driver_order_model.dart';
 
 abstract class OrdersRepository {
@@ -12,5 +13,7 @@ abstract class OrdersRepository {
     int orderId,
     String newStatus, {
     String? reason,
+    PickupCount? pickup,
+    DeliveryProof? delivery,
   });
 }

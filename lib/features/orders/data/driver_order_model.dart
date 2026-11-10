@@ -251,6 +251,8 @@ class DriverOrderItemModel {
   final double unitPrice;
   final double totalPrice;
   final String? notes;
+  /// من فئة منيو معلّمة مشروبات: يعدّها السائق عند الاستلام
+  final bool isDrink;
 
   DriverOrderItemModel({
     required this.id,
@@ -260,6 +262,7 @@ class DriverOrderItemModel {
     required this.unitPrice,
     required this.totalPrice,
     this.notes,
+    this.isDrink = false,
   });
 
   factory DriverOrderItemModel.fromJson(Map<String, dynamic> json) {
@@ -285,6 +288,7 @@ class DriverOrderItemModel {
         json['subtotal'] ?? json['total_price'] ?? json['subtotal_snapshot'],
       ),
       notes: json['notes'],
+      isDrink: json['is_drink'] == true,
     );
   }
 }

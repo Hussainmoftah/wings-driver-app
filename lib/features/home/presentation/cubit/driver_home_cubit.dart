@@ -10,6 +10,7 @@ import '../../../location/data/repositories/location_repository_impl.dart';
 import '../../../location/data/services/device_location_service.dart';
 import '../../../location/domain/repositories/location_repository.dart';
 import '../../../orders/data/driver_order_model.dart';
+import '../../../orders/data/handover_proof.dart';
 import '../../../orders/data/repositories/orders_repository_impl.dart';
 import '../../../orders/domain/repositories/orders_repository.dart';
 import '../../../profile/data/repositories/profile_repository_impl.dart';
@@ -273,8 +274,8 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
         _pollTimer?.cancel();
         await stopLocationTracking();
       }
-    } catch (e) {
-      debugPrint('⚠️ [Driver Duty Toggle] Error: $e');
+    } on NetworkException catch (e) {
+      debugPrint('⚠️ [Driver Duty Toggle] Network error: $e');
       final targetStatus = isOnline ? 'online' : 'offline';
       final fallbackProfile = state.profile?.copyWith(
         isOnline: isOnline,
@@ -289,6 +290,15 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
       } else {
         _pollTimer?.cancel();
       }
+    } catch (e) {
+      // الخادم رفض (مثلاً حسابه موقوف بسبب عهدة الكاش): لا يظهر متصلاً وهو لن يستلم طلبات
+      debugPrint('⚠️ [Driver Duty Toggle] Rejected: $e');
+      String message = 'تعذر تغيير حالتك، حاول مرة أخرى.';
+      try {
+        final m = (e as dynamic).message;
+        if (m is String && m.trim().isNotEmpty) message = m;
+      } catch (_) {}
+      emit(state.copyWith(isUpdatingStatus: false, errorMessage: message));
     }
   }
 
@@ -376,7 +386,14 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
     }
   }
 
-  Future<void> updateOrderStatus(String newStatus, int orderId) async {
+  /// [pickup]: عدد القطع والمشروبات عند الاستلام من المطعم، و[delivery]: صورة الطلب في الكيس عند التسليم.
+  /// عدم تطابق العدد يُرمى لنافذة العدّ ([PickupMismatchException]) لتعرض الأصناف.
+  Future<bool> updateOrderStatus(
+    String newStatus,
+    int orderId, {
+    PickupCount? pickup,
+    DeliveryProof? delivery,
+  }) async {
     emit(state.copyWith(isUpdatingStatus: true));
 
     try {
@@ -384,10 +401,15 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
         orderId,
         newStatus,
         reason: 'تحديث مسار التوصيل من تطبيق السائق',
+        pickup: pickup,
+        delivery: delivery,
       );
       debugPrint(
         '✅ [Driver Status Update] Successfully updated order $orderId to $newStatus',
       );
+    } on PickupMismatchException {
+      emit(state.copyWith(isUpdatingStatus: false));
+      rethrow;
     } catch (e) {
       // الخادم رفض (مثلاً الطلب ما زال يُحضَّر): لا نغيّر الشاشة ونُظهر السبب للسائق
       debugPrint('⚠️ [Driver Status Update] Error: $e');
@@ -398,7 +420,7 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
       } catch (_) {}
       emit(state.copyWith(isUpdatingStatus: false, errorMessage: message));
       await _fetchData();
-      return;
+      return false;
     }
 
     if (newStatus == 'delivered' || newStatus == 'completed') {
@@ -438,6 +460,7 @@ class DriverHomeCubit extends Cubit<DriverHomeState> {
 
       emit(state.copyWith(activeOrder: updatedOrder, isUpdatingStatus: false));
     }
+    return true;
   }
 
   @override
