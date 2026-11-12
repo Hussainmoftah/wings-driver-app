@@ -80,6 +80,63 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27346511893:android:046efd1b79a6dea4c4c61c",
+        "android_client_info": {
+          "package_name": "ly.com.alsadeem.captain"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKNJ_LB5lObBFB9lwZhvjxEFRmvxBF_FE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27346511893:android:8a782df6ec474bd4c4c61c",
+        "android_client_info": {
+          "package_name": "ly.com.alsadeem.customer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKNJ_LB5lObBFB9lwZhvjxEFRmvxBF_FE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27346511893:android:dbde1b3c7fe9a2abc4c61c",
+        "android_client_info": {
+          "package_name": "ly.com.alsadeem.restaurant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKNJ_LB5lObBFB9lwZhvjxEFRmvxBF_FE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"
